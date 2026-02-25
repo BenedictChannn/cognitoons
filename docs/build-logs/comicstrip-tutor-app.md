@@ -111,3 +111,32 @@
 
 **References**
 - commit d48defc
+
+### 2026-02-25 - Live API acceptance run with real keys
+
+**Summary**
+- Ran live OpenAI+Gemini API generation for UCT workflow (no dry-run).
+- Completed cheap-tier model comparison and benchmark report generation with real API calls.
+- Observed persistent timeout/hang behavior for gemini-3-pro-image-preview image generation.
+
+**Details**
+- Live artifacts were written under /workspace/live-outputs/experiments to avoid polluting tracked example outputs.
+- Gemini 3 Pro Image model hangs on generateContent calls (single-panel and full-strip), even with long timeouts.
+- Gemini 2.5 Flash Image and OpenAI GPT Image variants responded successfully.
+
+**Files touched**
+- `src/comicstrip_tutor/image_models/gemini_image.py`
+- `live-outputs/experiments/live-uct-api`
+- `live-outputs/experiments/benchmark-20260225T120525Z`
+
+**Impact**
+- Validated live integration path for supported responsive models and exposed premium Gemini runtime blocker.
+- Produced fresh live benchmark leaderboard and live comparison artifacts.
+
+**Follow-ups**
+- Add configurable per-provider request timeout and retry budget in adapter layer.
+- Add graceful skip/fallback when model is available but non-responsive for image generation.
+
+**References**
+- run live-uct-api
+- benchmark-20260225T120525Z
