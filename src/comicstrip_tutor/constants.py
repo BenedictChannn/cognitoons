@@ -10,7 +10,6 @@ DEFAULT_IMAGE_SIZE_PUBLISH = (1024, 1024)
 
 ROOT_DIR = Path.cwd()
 DEFAULT_OUTPUT_ROOT = Path("runs/experiments")
-EXPERIMENT_REGISTRY = Path("runs/experiment_registry.jsonl")
 
 CHEAP_FIRST_MODEL_ORDER = [
     "gpt-image-1-mini",

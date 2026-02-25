@@ -96,14 +96,14 @@ comic-tutor generate \
   --topic "Explain UCT in MCTS to a beginner" \
   --panel-count 6 \
   --mode draft
-comic-tutor render --run-id demo-uct --model gpt-image-1-mini --mode draft --dry-run
+comic-tutor render demo-uct --model gpt-image-1-mini --mode draft --dry-run
 ```
 
 ### 2) Regenerate only panel #3 with new metaphor
 
 ```bash
 comic-tutor reroll-panel \
-  --run-id demo-uct \
+  demo-uct \
   --model gpt-image-1-mini \
   --panel 3 \
   --metaphor "Tree search is like trying hallways in a maze with a confidence scoreboard" \
@@ -115,7 +115,7 @@ comic-tutor reroll-panel \
 
 ```bash
 comic-tutor compare \
-  --run-id demo-uct \
+  demo-uct \
   --model-a gpt-image-1-mini \
   --model-b gemini-2.5-flash-image \
   --mode draft \
@@ -126,7 +126,7 @@ comic-tutor compare \
 
 ```bash
 comic-tutor compare \
-  --run-id demo-uct \
+  demo-uct \
   --model-a gpt-image-1.5 \
   --model-b gemini-3-pro-image-preview \
   --mode publish \
@@ -169,7 +169,7 @@ Per run (`runs/experiments/<run_id>/`):
 - `manifest_<model>.json`
 
 Global:
-- `runs/experiment_registry.jsonl`
+- `<output_root_parent>/experiment_registry.jsonl` (default: `runs/experiment_registry.jsonl`)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
 
 ---

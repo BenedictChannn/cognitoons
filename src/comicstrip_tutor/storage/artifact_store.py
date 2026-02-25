@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from comicstrip_tutor.constants import DEFAULT_OUTPUT_ROOT, EXPERIMENT_REGISTRY
+from comicstrip_tutor.constants import DEFAULT_OUTPUT_ROOT
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.io_utils import write_json, write_text
 from comicstrip_tutor.utils.time_utils import utc_timestamp
@@ -32,6 +32,7 @@ class ArtifactStore:
     def __init__(self, output_root: Path | None = None):
         self.output_root = output_root or DEFAULT_OUTPUT_ROOT
         self.output_root.mkdir(parents=True, exist_ok=True)
+        self.registry_path = self.output_root.parent / "experiment_registry.jsonl"
 
     def create_run(self, config: RunConfig) -> RunPaths:
         run_id = config.run_id or f"run-{utc_timestamp()}"
@@ -72,10 +73,10 @@ class ArtifactStore:
         )
 
     def append_registry(self, line: dict) -> None:
-        EXPERIMENT_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+        self.registry_path.parent.mkdir(parents=True, exist_ok=True)
         payload = json.dumps({"timestamp": utc_timestamp(), **line}, ensure_ascii=False) + "\n"
-        if EXPERIMENT_REGISTRY.exists():
-            existing = EXPERIMENT_REGISTRY.read_text(encoding="utf-8")
-            write_text(EXPERIMENT_REGISTRY, existing + payload)
+        if self.registry_path.exists():
+            existing = self.registry_path.read_text(encoding="utf-8")
+            write_text(self.registry_path, existing + payload)
             return
-        write_text(EXPERIMENT_REGISTRY, payload)
+        write_text(self.registry_path, payload)
