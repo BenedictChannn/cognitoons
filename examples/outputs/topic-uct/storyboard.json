@@ -1,0 +1,55 @@
+{
+  "topic": "Explain UCT in MCTS to a beginner",
+  "audience_level": "beginner",
+  "story_title": "Explain UCT in MCTS to a beginner: A Visual Walkthrough",
+  "character_style_guide": "Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.",
+  "recurring_characters": [
+    "Ada",
+    "Turing"
+  ],
+  "panels": [
+    {
+      "panel_number": 1,
+      "scene_description": "Setup scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 2,
+      "scene_description": "Confusion scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 3,
+      "scene_description": "Confusion scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": "Tree search as trying hallways with a confidence scorecard"
+    },
+    {
+      "panel_number": 4,
+      "scene_description": "Insight scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 5,
+      "scene_description": "Insight scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 6,
+      "scene_description": "Recap scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.",
+      "dialogue_or_caption": "Ada: \"I thought Explain UCT in MCTS to a beginner was simpler.\" Turing: \"Let’s unpack Explain UCT in MCTS to a beginner with a metaphor.\"",
+      "teaching_intent": "Teach: Explain UCT in MCTS to a beginner",
+      "metaphor_anchor": null
+    }
+  ],
+  "recap_panel": 6
+}

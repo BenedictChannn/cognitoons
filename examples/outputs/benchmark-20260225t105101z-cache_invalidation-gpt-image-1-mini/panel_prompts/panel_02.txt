@@ -1,0 +1,10 @@
+Title: Cache invalidation strategies: A Visual Walkthrough
+Topic: Cache invalidation strategies
+Audience: intermediate
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Confusion scene: Ada and Turing discuss Cache invalidation strategies.
+Dialogue text to make legible in scene: Ada: "I thought Cache invalidation strategies was simpler." Turing: "Let’s unpack Cache invalidation strategies with a metaphor."
+Teaching intent: Teach: Cache invalidation strategies
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

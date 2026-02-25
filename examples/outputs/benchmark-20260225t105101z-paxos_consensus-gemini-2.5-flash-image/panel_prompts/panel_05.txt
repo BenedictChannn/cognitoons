@@ -1,0 +1,10 @@
+Title: Paxos consensus in distributed systems: A Visual Walkthrough
+Topic: Paxos consensus in distributed systems
+Audience: advanced
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Insight scene: Ada and Turing discuss Paxos consensus in distributed systems.
+Dialogue text to make legible in scene: Ada: "I thought Paxos consensus in distributed systems was simpler." Turing: "Let’s unpack Paxos consensus in distributed systems with a metaphor."
+Teaching intent: Teach: Paxos consensus in distributed systems
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

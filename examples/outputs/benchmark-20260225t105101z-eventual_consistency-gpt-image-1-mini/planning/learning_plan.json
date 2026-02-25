@@ -1,0 +1,14 @@
+{
+  "topic": "Eventual consistency for backend APIs",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind Eventual consistency for backend APIs",
+    "Explain Eventual consistency for backend APIs with a simple metaphor",
+    "Apply Eventual consistency for backend APIs to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Eventual consistency for backend APIs has only one correct strategy",
+    "Eventual consistency for backend APIs is purely theoretical and not practical"
+  ],
+  "recap_message": "Eventual consistency for backend APIs: balance intuition, structure, and tradeoffs."
+}

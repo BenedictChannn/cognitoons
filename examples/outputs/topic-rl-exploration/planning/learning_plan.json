@@ -1,0 +1,14 @@
+{
+  "topic": "Explain epsilon-greedy exploration in reinforcement learning",
+  "audience_level": "beginner",
+  "objectives": [
+    "Understand the intuition behind Explain epsilon-greedy exploration in reinforcement learning",
+    "Explain Explain epsilon-greedy exploration in reinforcement learning with a simple metaphor",
+    "Apply Explain epsilon-greedy exploration in reinforcement learning to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Explain epsilon-greedy exploration in reinforcement learning has only one correct strategy",
+    "Explain epsilon-greedy exploration in reinforcement learning is purely theoretical and not practical"
+  ],
+  "recap_message": "Explain epsilon-greedy exploration in reinforcement learning: balance intuition, structure, and tradeoffs."
+}

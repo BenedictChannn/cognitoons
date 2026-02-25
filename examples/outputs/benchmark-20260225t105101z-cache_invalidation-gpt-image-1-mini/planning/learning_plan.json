@@ -1,0 +1,14 @@
+{
+  "topic": "Cache invalidation strategies",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind Cache invalidation strategies",
+    "Explain Cache invalidation strategies with a simple metaphor",
+    "Apply Cache invalidation strategies to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Cache invalidation strategies has only one correct strategy",
+    "Cache invalidation strategies is purely theoretical and not practical"
+  ],
+  "recap_message": "Cache invalidation strategies: balance intuition, structure, and tradeoffs."
+}

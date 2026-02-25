@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Ada",
+    "role": "curious engineer",
+    "personality": "analytical and practical",
+    "visual_traits": [
+      "short blue hair",
+      "hoodie",
+      "notebook"
+    ]
+  },
+  {
+    "name": "Turing",
+    "role": "mentor engineer",
+    "personality": "calm and metaphor-driven",
+    "visual_traits": [
+      "round glasses",
+      "green jacket",
+      "marker pen"
+    ]
+  }
+]

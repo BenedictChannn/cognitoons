@@ -1,0 +1,9 @@
+Title: Raft election and log replication basics: A Visual Walkthrough
+Topic: Raft election and log replication basics
+Audience: intermediate
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Recap scene: Ada and Turing discuss Raft election and log replication basics.
+Dialogue text to make legible in scene: Ada: "I thought Raft election and log replication basics was simpler." Turing: "Let’s unpack Raft election and log replication basics with a metaphor."
+Teaching intent: Teach: Raft election and log replication basics
+Instructions: keep characters visually consistent with prior panels.

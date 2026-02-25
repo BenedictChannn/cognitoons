@@ -1,0 +1,9 @@
+Title: CAP theorem and real-world tradeoffs: A Visual Walkthrough
+Topic: CAP theorem and real-world tradeoffs
+Audience: intermediate
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Setup scene: Ada and Turing discuss CAP theorem and real-world tradeoffs.
+Dialogue text to make legible in scene: Ada: "I thought CAP theorem and real-world tradeoffs was simpler." Turing: "Let’s unpack CAP theorem and real-world tradeoffs with a metaphor."
+Teaching intent: Teach: CAP theorem and real-world tradeoffs
+Instructions: keep characters visually consistent with prior panels.

@@ -1,0 +1,14 @@
+{
+  "topic": "CAP theorem and real-world tradeoffs",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind CAP theorem and real-world tradeoffs",
+    "Explain CAP theorem and real-world tradeoffs with a simple metaphor",
+    "Apply CAP theorem and real-world tradeoffs to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "CAP theorem and real-world tradeoffs has only one correct strategy",
+    "CAP theorem and real-world tradeoffs is purely theoretical and not practical"
+  ],
+  "recap_message": "CAP theorem and real-world tradeoffs: balance intuition, structure, and tradeoffs."
+}

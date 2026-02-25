@@ -1,0 +1,55 @@
+{
+  "topic": "How LLM agents use tools reliably",
+  "audience_level": "intermediate",
+  "story_title": "How LLM agents use tools reliably: A Visual Walkthrough",
+  "character_style_guide": "Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.",
+  "recurring_characters": [
+    "Ada",
+    "Turing"
+  ],
+  "panels": [
+    {
+      "panel_number": 1,
+      "scene_description": "Setup scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 2,
+      "scene_description": "Confusion scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 3,
+      "scene_description": "Confusion scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 4,
+      "scene_description": "Insight scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 5,
+      "scene_description": "Insight scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 6,
+      "scene_description": "Recap scene: Ada and Turing discuss How LLM agents use tools reliably.",
+      "dialogue_or_caption": "Ada: \"I thought How LLM agents use tools reliably was simpler.\" Turing: \"Let’s unpack How LLM agents use tools reliably with a metaphor.\"",
+      "teaching_intent": "Teach: How LLM agents use tools reliably",
+      "metaphor_anchor": null
+    }
+  ],
+  "recap_panel": 6
+}

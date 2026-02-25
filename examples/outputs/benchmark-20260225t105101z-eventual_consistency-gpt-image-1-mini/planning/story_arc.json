@@ -1,0 +1,6 @@
+{
+  "setup": "Characters encounter a real problem requiring Eventual consistency for backend APIs.",
+  "confusion": "They choose a naive strategy and hit failure.",
+  "insight": "They discover a better mental model and improve outcomes.",
+  "recap": "They summarize Eventual consistency for backend APIs as a repeatable decision process."
+}

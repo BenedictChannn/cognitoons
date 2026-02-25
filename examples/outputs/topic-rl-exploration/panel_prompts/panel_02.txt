@@ -1,0 +1,10 @@
+Title: Explain epsilon-greedy exploration in reinforcement learning: A Visual Walkthrough
+Topic: Explain epsilon-greedy exploration in reinforcement learning
+Audience: beginner
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Confusion scene: Ada and Turing discuss Explain epsilon-greedy exploration in reinforcement learning.
+Dialogue text to make legible in scene: Ada: "I thought Explain epsilon-greedy exploration in reinforcement learning was simpler." Turing: "Let’s unpack Explain epsilon-greedy exploration in reinforcement learning with a metaphor."
+Teaching intent: Teach: Explain epsilon-greedy exploration in reinforcement learning
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

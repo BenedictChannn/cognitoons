@@ -1,0 +1,9 @@
+{
+  "run_id": "benchmark-20260225t105101z-q_learning-gemini-2.5-flash-image",
+  "topic": "Q-learning with epsilon-greedy exploration",
+  "source_text": null,
+  "audience_level": "beginner",
+  "panel_count": 6,
+  "mode": "draft",
+  "created_at": "2026-02-25T10:51:05.884287+00:00"
+}

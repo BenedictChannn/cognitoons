@@ -1,0 +1,142 @@
+[
+  {
+    "id": "mcts_uct_beginner",
+    "topic": "Explain UCT in MCTS to a beginner",
+    "audience_level": "beginner",
+    "expected_key_points": ["exploration vs exploitation", "visit counts", "value estimates", "UCB intuition"],
+    "common_misconceptions": ["always pick max average reward", "search trees are static"]
+  },
+  {
+    "id": "agent_tool_use",
+    "topic": "How LLM agents use tools reliably",
+    "audience_level": "intermediate",
+    "expected_key_points": ["planner-executor loop", "tool selection", "verification", "fallback paths"],
+    "common_misconceptions": ["one-shot prompts are enough"]
+  },
+  {
+    "id": "q_learning",
+    "topic": "Q-learning with epsilon-greedy exploration",
+    "audience_level": "beginner",
+    "expected_key_points": ["state-action values", "temporal difference", "epsilon exploration", "convergence intuition"],
+    "common_misconceptions": ["exploration is wasted time"]
+  },
+  {
+    "id": "policy_gradient",
+    "topic": "Policy gradient intuition for engineers",
+    "audience_level": "intermediate",
+    "expected_key_points": ["stochastic policy", "reward-weighted updates", "variance reduction", "baseline idea"],
+    "common_misconceptions": ["policy methods cannot be stable"]
+  },
+  {
+    "id": "paxos_consensus",
+    "topic": "Paxos consensus in distributed systems",
+    "audience_level": "advanced",
+    "expected_key_points": ["proposers/acceptors", "quorums", "safety vs liveness", "leader optimization"],
+    "common_misconceptions": ["consensus means no failures"]
+  },
+  {
+    "id": "raft_basics",
+    "topic": "Raft election and log replication basics",
+    "audience_level": "intermediate",
+    "expected_key_points": ["leader election", "term numbers", "append entries", "commit index"],
+    "common_misconceptions": ["followers are passive forever"]
+  },
+  {
+    "id": "cache_invalidation",
+    "topic": "Cache invalidation strategies",
+    "audience_level": "intermediate",
+    "expected_key_points": ["TTL", "write-through", "write-back", "stale reads tradeoffs"],
+    "common_misconceptions": ["cache always improves correctness"]
+  },
+  {
+    "id": "cap_theorem",
+    "topic": "CAP theorem and real-world tradeoffs",
+    "audience_level": "intermediate",
+    "expected_key_points": ["consistency", "availability", "partition tolerance", "design tradeoffs"],
+    "common_misconceptions": ["you can maximize all three simultaneously"]
+  },
+  {
+    "id": "eventual_consistency",
+    "topic": "Eventual consistency for backend APIs",
+    "audience_level": "intermediate",
+    "expected_key_points": ["replication lag", "read repair", "conflict resolution", "user-visible effects"],
+    "common_misconceptions": ["eventual means random"]
+  },
+  {
+    "id": "vector_clocks",
+    "topic": "Vector clocks and causality",
+    "audience_level": "advanced",
+    "expected_key_points": ["partial ordering", "concurrent updates", "merge semantics", "causal context"],
+    "common_misconceptions": ["timestamps alone are enough"]
+  },
+  {
+    "id": "backpressure_streams",
+    "topic": "Backpressure in streaming systems",
+    "audience_level": "intermediate",
+    "expected_key_points": ["producer-consumer imbalance", "buffering", "flow control", "drop vs delay policies"],
+    "common_misconceptions": ["bigger buffers always solve it"]
+  },
+  {
+    "id": "circuit_breakers",
+    "topic": "Circuit breaker pattern",
+    "audience_level": "beginner",
+    "expected_key_points": ["open/half-open/closed states", "failure thresholds", "recovery probes", "latency protection"],
+    "common_misconceptions": ["retries alone handle outages"]
+  },
+  {
+    "id": "idempotency",
+    "topic": "Idempotency keys in APIs",
+    "audience_level": "beginner",
+    "expected_key_points": ["duplicate requests", "request keys", "safe retries", "state integrity"],
+    "common_misconceptions": ["POST can never be idempotent"]
+  },
+  {
+    "id": "deadlock_avoidance",
+    "topic": "Deadlock avoidance in concurrent systems",
+    "audience_level": "intermediate",
+    "expected_key_points": ["lock ordering", "timeouts", "resource graphs", "detection vs prevention"],
+    "common_misconceptions": ["just use more threads"]
+  },
+  {
+    "id": "branch_prediction",
+    "topic": "CPU branch prediction basics",
+    "audience_level": "advanced",
+    "expected_key_points": ["pipeline stalls", "prediction tables", "misprediction penalty", "code layout effects"],
+    "common_misconceptions": ["CPU executes strictly linearly"]
+  },
+  {
+    "id": "gradient_descent",
+    "topic": "Gradient descent learning rate intuition",
+    "audience_level": "beginner",
+    "expected_key_points": ["loss surface", "step size", "overshoot", "local minima/saddles"],
+    "common_misconceptions": ["bigger learning rate is always faster"]
+  },
+  {
+    "id": "transformer_attention",
+    "topic": "Self-attention in transformers",
+    "audience_level": "intermediate",
+    "expected_key_points": ["queries keys values", "context weighting", "multi-head diversity", "sequence relationships"],
+    "common_misconceptions": ["attention is just memorization"]
+  },
+  {
+    "id": "rag_pipeline",
+    "topic": "RAG pipeline reliability",
+    "audience_level": "intermediate",
+    "expected_key_points": ["retrieval quality", "grounded generation", "citation checks", "failure modes"],
+    "common_misconceptions": ["RAG removes hallucinations completely"]
+  },
+  {
+    "id": "scheduler_fairness",
+    "topic": "Task scheduler fairness vs throughput",
+    "audience_level": "intermediate",
+    "expected_key_points": ["queue disciplines", "starvation", "latency tail", "throughput tradeoff"],
+    "common_misconceptions": ["fairness and throughput always align"]
+  },
+  {
+    "id": "observability_pillars",
+    "topic": "Logs metrics traces for observability",
+    "audience_level": "beginner",
+    "expected_key_points": ["logs", "metrics", "traces", "correlation for debugging"],
+    "common_misconceptions": ["one signal is enough"]
+  }
+]

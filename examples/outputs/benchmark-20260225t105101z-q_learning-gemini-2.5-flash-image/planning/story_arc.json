@@ -1,0 +1,6 @@
+{
+  "setup": "Characters encounter a real problem requiring Q-learning with epsilon-greedy exploration.",
+  "confusion": "They choose a naive strategy and hit failure.",
+  "insight": "They discover a better mental model and improve outcomes.",
+  "recap": "They summarize Q-learning with epsilon-greedy exploration as a repeatable decision process."
+}

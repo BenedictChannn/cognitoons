@@ -1,0 +1,67 @@
+{
+  "run_id": "benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini",
+  "model_key": "gpt-image-1-mini",
+  "provider": "openai",
+  "mode": "draft",
+  "storyboard_hash": "72b509ad9e8d4c2ca4ac1f77bc616daf6767282c02df85015925d25bc850b945",
+  "prompt_hash": "1a20c768ac53d6992c154767898fca81f357f8d77a8cafb40b12cd8f73e719e0",
+  "started_at": "2026-02-25T10:51:04.830569+00:00",
+  "panel_records": [
+    {
+      "panel_number": 1,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_01.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_01.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 2,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_02.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_02.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 3,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_03.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_03.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 4,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_04.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_04.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 5,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_05.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_05.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 6,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/panel_prompts/panel_06.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini/images/gpt-image-1-mini/panel_06.png",
+      "estimated_cost_usd": 0.01,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    }
+  ],
+  "total_estimated_cost_usd": 0.06,
+  "notes": []
+}

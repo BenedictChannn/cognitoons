@@ -1,0 +1,9 @@
+Title: How LLM agents use tools reliably: A Visual Walkthrough
+Topic: How LLM agents use tools reliably
+Audience: intermediate
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Setup scene: Ada and Turing discuss How LLM agents use tools reliably.
+Dialogue text to make legible in scene: Ada: "I thought How LLM agents use tools reliably was simpler." Turing: "Let’s unpack How LLM agents use tools reliably with a metaphor."
+Teaching intent: Teach: How LLM agents use tools reliably
+Instructions: keep characters visually consistent with prior panels.

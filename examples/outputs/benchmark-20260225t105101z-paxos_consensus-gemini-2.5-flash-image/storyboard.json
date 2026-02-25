@@ -1,0 +1,55 @@
+{
+  "topic": "Paxos consensus in distributed systems",
+  "audience_level": "advanced",
+  "story_title": "Paxos consensus in distributed systems: A Visual Walkthrough",
+  "character_style_guide": "Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.",
+  "recurring_characters": [
+    "Ada",
+    "Turing"
+  ],
+  "panels": [
+    {
+      "panel_number": 1,
+      "scene_description": "Setup scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 2,
+      "scene_description": "Confusion scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 3,
+      "scene_description": "Confusion scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 4,
+      "scene_description": "Insight scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 5,
+      "scene_description": "Insight scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 6,
+      "scene_description": "Recap scene: Ada and Turing discuss Paxos consensus in distributed systems.",
+      "dialogue_or_caption": "Ada: \"I thought Paxos consensus in distributed systems was simpler.\" Turing: \"Let’s unpack Paxos consensus in distributed systems with a metaphor.\"",
+      "teaching_intent": "Teach: Paxos consensus in distributed systems",
+      "metaphor_anchor": null
+    }
+  ],
+  "recap_panel": 6
+}

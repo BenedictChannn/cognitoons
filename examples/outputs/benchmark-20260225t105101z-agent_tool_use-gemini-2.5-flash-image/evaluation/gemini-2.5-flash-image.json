@@ -1,0 +1,21 @@
+{
+  "run_id": "benchmark-20260225t105101z-agent_tool_use-gemini-2.5-flash-image",
+  "model_key": "gemini-2.5-flash-image",
+  "metrics": {
+    "concept_coverage": 0.2622,
+    "coherence": 1.0,
+    "visual_text_alignment": 0.5829,
+    "readability": 1.0,
+    "consistency": 1.0,
+    "llm_judge": null
+  },
+  "checks": {
+    "panel_count_valid": true,
+    "captions_non_empty": true,
+    "images_exist": true,
+    "recap_present": true
+  },
+  "notes": [
+    "aggregate=0.769"
+  ]
+}

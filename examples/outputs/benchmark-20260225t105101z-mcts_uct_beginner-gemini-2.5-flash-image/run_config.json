@@ -1,0 +1,9 @@
+{
+  "run_id": "benchmark-20260225t105101z-mcts_uct_beginner-gemini-2.5-flash-image",
+  "topic": "Explain UCT in MCTS to a beginner",
+  "source_text": null,
+  "audience_level": "beginner",
+  "panel_count": 6,
+  "mode": "draft",
+  "created_at": "2026-02-25T10:51:05.150000+00:00"
+}
