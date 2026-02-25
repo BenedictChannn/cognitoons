@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 from pathlib import Path
+from shutil import copy2
 
 from pydantic import TypeAdapter
 
 from comicstrip_tutor.composition.strip_composer import compose_strip
 from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.evaluation.scorer import score_render_run
-from comicstrip_tutor.image_models.base import PanelImageRequest
+from comicstrip_tutor.image_models.base import PanelImageRequest, PanelImageResult
 from comicstrip_tutor.image_models.registry import create_model
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
 from comicstrip_tutor.schemas.runs import PanelRenderRecord, RenderRunManifest
 from comicstrip_tutor.schemas.storyboard import Storyboard
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
+from comicstrip_tutor.storage.cache import JsonCache
 from comicstrip_tutor.storage.io_utils import read_json, write_json, write_text
 from comicstrip_tutor.utils.hashing import sha256_text
 
@@ -25,6 +27,20 @@ def _size_for_mode(mode: str) -> tuple[int, int]:
     if mode == "publish":
         return (1024, 1024)
     return (768, 768)
+
+
+def _panel_cache_key(
+    *,
+    model_key: str,
+    mode: str,
+    width: int,
+    height: int,
+    style_guide: str,
+    prompt: str,
+) -> str:
+    return sha256_text(
+        "|".join([model_key, mode, f"{width}x{height}", style_guide.strip(), prompt.strip()])
+    )
 
 
 def render_storyboard(
@@ -43,6 +59,7 @@ def render_storyboard(
     storyboard = _STORYBOARD_ADAPTER.validate_python(read_json(paths.root / "storyboard.json"))
     model = create_model(model_key, app_config)
     width, height = _size_for_mode(mode)
+    panel_cache = JsonCache(app_config.output_root.parent / "panel_cache.json")
 
     model_image_dir = paths.images_dir / model_key
     model_image_dir.mkdir(parents=True, exist_ok=True)
@@ -59,16 +76,62 @@ def render_storyboard(
         prompts_joined.append(prompt)
 
         output_path = model_image_dir / f"panel_{panel.panel_number:02d}.png"
-        result = model.generate_panel_image(
-            PanelImageRequest(
-                panel_number=panel.panel_number,
-                prompt=prompt,
-                width=width,
-                height=height,
-                style_guide=storyboard.character_style_guide,
-                output_path=str(output_path),
-                dry_run=dry_run,
+        cache_key = _panel_cache_key(
+            model_key=model_key,
+            mode=mode,
+            width=width,
+            height=height,
+            style_guide=storyboard.character_style_guide,
+            prompt=prompt,
+        )
+        cache_hit = panel_cache.get(cache_key)
+        result: PanelImageResult
+        if cache_hit and isinstance(cache_hit.get("image_path"), str):
+            cached_image_path = Path(cache_hit["image_path"])
+            if cached_image_path.exists():
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                if cached_image_path != output_path:
+                    copy2(cached_image_path, output_path)
+                result = PanelImageResult(
+                    image_path=str(output_path),
+                    provider_usage={
+                        "cache_hit": True,
+                        "source_image_path": str(cached_image_path),
+                    },
+                    estimated_cost_usd=0.0,
+                )
+            else:
+                result = model.generate_panel_image(
+                    PanelImageRequest(
+                        panel_number=panel.panel_number,
+                        prompt=prompt,
+                        width=width,
+                        height=height,
+                        style_guide=storyboard.character_style_guide,
+                        output_path=str(output_path),
+                        dry_run=dry_run,
+                    )
+                )
+        else:
+            result = model.generate_panel_image(
+                PanelImageRequest(
+                    panel_number=panel.panel_number,
+                    prompt=prompt,
+                    width=width,
+                    height=height,
+                    style_guide=storyboard.character_style_guide,
+                    output_path=str(output_path),
+                    dry_run=dry_run,
+                )
             )
+        panel_cache.set(
+            cache_key,
+            {
+                "image_path": str(output_path),
+                "model_key": model_key,
+                "mode": mode,
+                "prompt_hash": sha256_text(prompt),
+            },
         )
         image_files.append(Path(result.image_path))
         panel_records.append(

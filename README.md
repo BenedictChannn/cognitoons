@@ -21,6 +21,7 @@ It is intentionally not a one-shot image generator. It uses explicit intermediat
 - Model comparison on same storyboard (`compare`)
 - Benchmark harness with cheap→expensive model ordering + early-stop
 - Cost estimate + usage metadata capture
+- Prompt/image cache reuse for reproducible model comparisons
 - Build logs under `docs/build-logs/`
 - Experiment artifacts under `runs/experiments/`
 
@@ -170,6 +171,7 @@ Per run (`runs/experiments/<run_id>/`):
 
 Global:
 - `<output_root_parent>/experiment_registry.jsonl` (default: `runs/experiment_registry.jsonl`)
+- `<output_root_parent>/panel_cache.json` (prompt+model cache for panel reuse)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
 
 ---
