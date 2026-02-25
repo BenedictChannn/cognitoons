@@ -60,3 +60,28 @@
 
 **References**
 - benchmark-20260225T105101Z
+
+### 2026-02-25 - Fix experiment registry scoping and README CLI commands
+
+**Summary**
+- Scoped experiment registry writes to output-root parent to prevent test pollution.
+- Corrected README acceptance commands to use positional run_id for render/reroll/compare.
+
+**Details**
+- Previously, registry writes always targeted runs/experiment_registry.jsonl regardless of configured output root.
+- Added regression test to verify registry file location for custom output roots.
+
+**Files touched**
+- `src/comicstrip_tutor/storage/artifact_store.py`
+- `tests/test_artifact_store.py`
+- `README.md`
+
+**Impact**
+- Improves artifact hygiene and reproducibility for tests/custom output paths.
+- Keeps docs aligned with actual CLI behavior.
+
+**Follow-ups**
+- Optional: add an explicit --run-id option alias for render/compare/reroll commands.
+
+**References**
+- commit eb3ab8f
