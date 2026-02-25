@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -29,7 +29,7 @@ class PanelRenderRecord(BaseModel):
     prompt_path: str
     image_path: str
     estimated_cost_usd: float = 0.0
-    provider_usage: dict[str, float | int | str] = Field(default_factory=dict)
+    provider_usage: dict[str, Any] = Field(default_factory=dict)
 
 
 class RenderRunManifest(BaseModel):

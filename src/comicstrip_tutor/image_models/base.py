@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 ModelTier = Literal["cheap", "mid", "premium"]
 
@@ -29,7 +29,7 @@ class PanelImageResult:
     """Unified model output."""
 
     image_path: str
-    provider_usage: dict[str, float | int | str]
+    provider_usage: dict[str, Any]
     estimated_cost_usd: float
 
 
