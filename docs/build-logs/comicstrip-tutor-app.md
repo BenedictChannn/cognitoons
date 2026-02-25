@@ -85,3 +85,29 @@
 
 **References**
 - commit eb3ab8f
+
+### 2026-02-25 - Add panel-image cache reuse for reproducible rerenders
+
+**Summary**
+- Implemented prompt+model keyed panel cache to reuse prior panel outputs.
+- Render pipeline now records cache-hit metadata and zero incremental estimated cost for hits.
+- Added integration test proving second render of same storyboard/model costs zero estimated dollars.
+
+**Details**
+- Cache key includes model, mode, size, style guide, and panel prompt text hash input to keep comparisons fair and deterministic.
+- Cache is stored at output-root parent (panel_cache.json), parallel to experiment registry.
+
+**Files touched**
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+- `tests/integration/test_render_cache_reuse.py`
+- `README.md`
+
+**Impact**
+- Faster iteration on unchanged storyboards and cleaner cost-aware experimentation loops.
+- Improves reproducibility when comparing models on identical prompts.
+
+**Follow-ups**
+- Consider cache eviction policy for very large local artifact stores.
+
+**References**
+- commit d48defc
