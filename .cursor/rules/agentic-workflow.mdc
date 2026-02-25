@@ -1,0 +1,1294 @@
+---
+description: Best practices and patterns for LLM agentic workflows with comprehensive tracing, cost tracking, and output logging
+alwaysApply: false
+---
+# LLM Agentic Workflow Best Practices and Patterns
+
+## Overview
+
+This guide covers production-ready patterns for multi-agent LLM workflows using LangChain and LangGraph. The architecture follows a layered hierarchy:
+
+```
+Run Script (run/) 
+    ↓
+Pipeline (pipeline/)
+    ↓
+Graph (graph/) + State (models/)
+    ├─→ Node (graph/nodes/)
+    │   └─→ Agent (agents/)
+    └─→ Agent (agents/)  [Direct call, optional]
+```
+
+**Key Principle**: Each layer has distinct responsibilities. Graphs are built around **generation states** that can be persisted to Firestore, fetched on subsequent runs (via `check_existing`), and resumed from where they failed.
+
+---
+
+## Architecture Layers
+
+### 1. **Run Scripts** (`run/run_*.py`)
+- **Purpose**: Accept a configuration file and execute a complete pipeline
+- **Responsibilities**:
+  - Parse and validate config
+  - Initialize tracing context (for local/testing)
+  - Call pipeline function
+  - Print comprehensive input/output logs
+  - Print final cost summary
+  - Print final result summary
+  - Save all outputs to output folder (with timestamp prefix)
+
+### 2. **Pipeline** (`pipeline/*.py`)
+- **Purpose**: Orchestrate multiple graphs and handle business logic (DB updates, GCS uploads, etc.)
+- **Responsibilities**:
+  - Initialize tracing span with `concept_id` as key
+  - Call individual graph instances
+  - Aggregate results from multiple graphs
+  - Handle database persistence
+  - Upload artifacts (images, HTML) to cloud storage
+  - Check for existing results and reuse if applicable
+
+### 3. **Graph** (`graph/*.py`)
+- **Purpose**: Orchestrate multiple nodes/agents for a specific task
+- **Responsibilities**:
+  - Initialize tracing span with `concept_id` as key
+  - Create and manage node instances
+  - Route between nodes based on state
+  - Track cost and token metrics
+  - Save state to database (if enabled)
+  - Log all state transitions with JSON dumps
+  - Implement decision nodes for routing logic
+
+### 4. **Graph Nodes** (`graph/nodes/*.py`) - Optional
+- **Purpose**: Orchestrate agents and specialized processing within a graph
+- **When to use**: Complex graphs with multiple steps/routing logic
+- **Responsibilities**:
+  - Extract data from graph state
+  - Call agents (passing `output_dir` so they can save outputs)
+  - Update graph state based on agent results
+  - Handle state transitions and routing
+  - Participate in parent span context
+
+### 5. **Agents** (`agents/*.py`)
+- **Purpose**: Execute LLM calls and return structured results
+- **Responsibilities**:
+  - Prepare system and human messages
+  - Call BaseAgent with messages
+  - Save input messages to timestamped log file (for debugging)
+  - **Save agent output** to timestamped log file with metrics/artifacts (after receiving result)
+  - Return AgentOutput
+  - Do NOT update state (Node responsibility)
+
+---
+
+## Configuration Pattern
+
+### Config File Structure
+
+Run scripts accept a configuration file (typically JSON or YAML) that customizes pipeline behavior. The config is parsed into a Pydantic model for type safety and validation.
+
+**Typical Config Attributes**:
+
+```python
+from pydantic import BaseModel
+
+class PipelineConfig(BaseModel):
+    # Business Keys
+    concept_id: str                          # Required: business identifier
+    question_id: Optional[str] = None       # Optional: context
+    
+    # Execution Control
+    check_existing: bool = True              # Reuse existing results from Firestore
+    save_to_db: bool = False                 # Persist state (False for testing, True for prod)
+    output_dir: str = "./output"             # Where to save debug logs/artifacts
+    
+    # Algorithm Configuration
+    max_iterations: int = 4                  # Max retries per item
+    bucket_indices: Optional[list[int]] = None  # Run specific buckets (None = all)
+    request_indices: Optional[dict[int, list[int]]] = None  # Run specific requests per bucket
+    
+    # Performance
+    parallel_processing: bool = False        # Enable parallel execution
+    timeout_seconds: int = 300               # Request timeout
+```
+
+**Example Config File** (`config.json`):
+```json
+{
+  "concept_id": "concept_xyz_123",
+  "check_existing": false,
+  "save_to_db": false,
+  "output_dir": "./output/20250108_test_run",
+  "max_iterations": 4,
+  "bucket_indices": [0, 1],
+  "request_indices": {
+    "0": [0, 1],
+    "1": [0]
+  }
+}
+```
+
+**Usage in Run Script**:
+```python
+import json
+from pydantic import ValidationError
+
+def load_config(config_file: str) -> PipelineConfig:
+    """Load and validate config file."""
+    try:
+        with open(config_file, 'r') as f:
+            config_dict = json.load(f)
+        config = PipelineConfig(**config_dict)
+        logger.info(f"Config loaded: {config.model_dump_json(indent=2)}")
+        return config
+    except ValidationError as e:
+        logger.error(f"Invalid config: {e}")
+        raise
+```
+
+---
+
+## Generation State Pattern
+
+**Critical Principle**: Graphs MUST be built around **generation states** that can be persisted and resumed.
+
+### Why Generation States Matter
+
+- **Resilience**: If a graph fails at step 3 of 5, resume from step 3 (not step 1)
+- **Cost Optimization**: Don't re-run completed iterations
+- **Debugging**: Save state after each decision point
+- **Reproducibility**: Re-run with same results by loading state from Firestore
+
+### State Structure Example
+
+```python
+from pydantic import BaseModel
+from typing import Dict, Optional
+from enum import Enum
+
+class IterationStatus(str, Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    PASSED = "passed"
+    FAILED = "failed"
+    REQUIRE_REGENERATION = "require_regeneration"
+
+class RequestIterationState(BaseModel):
+    """Represents a single iteration of a request."""
+    request_idx: int
+    iteration_num: int
+    status: IterationStatus = IterationStatus.PENDING
+    html: Optional[str] = None
+    image_bytes: Optional[bytes] = None
+    image_cloud_storage_path: Optional[str] = None
+    vetting_feedback: Optional[str] = None
+    cost: float = 0.0
+
+class RequestState(BaseModel):
+    """Represents overall state for one generation request."""
+    request_idx: int
+    action_id: str
+    narration_text: str
+    iterations: Dict[int, RequestIterationState] = {}  # iteration_num → state
+    finalized_html: Optional[str] = None
+    finalized_img_cloud_storage_path: Optional[str] = None
+
+class BucketGraphState(BaseModel):
+    """Top-level state for a bucket graph."""
+    bucket_idx: int
+    requests: Dict[int, RequestState] = {}  # request_idx → state
+    total_cost: float = 0.0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    pipeline_error: Optional[str] = None
+    
+    def is_completed(self, save_to_db: bool) -> bool:
+        """Check if this bucket processing is complete."""
+        return all(
+            req.finalized_html and (
+                req.finalized_img_cloud_storage_path if save_to_db else True
+            )
+            for req in self.requests.values()
+        )
+```
+
+### Persisting & Resuming State
+
+**After each iteration**:
+```python
+# Save state to Firestore
+if save_to_db:
+    state_for_db = GenerationBucketGraphStateForDB.from_state(
+        state=state,
+        concept_id=concept_id,
+        bucket_idx=bucket_idx
+    )
+    state_for_db.update_existing_or_create(logger=logger)
+```
+
+**On subsequent run** (with `check_existing=True`):
+```python
+# Fetch existing state from Firestore
+existing_state = GenerationBucketGraphStateForDB.fetch_by_concept_and_bucket(
+    concept_id=concept_id,
+    bucket_idx=bucket_idx
+)
+
+if existing_state and not all_iterations_complete(existing_state):
+    # Resume from where we left off
+    state = existing_state.to_state()
+    logger.info(f"Resuming from iteration {state.current_iteration_num}")
+else:
+    # Start fresh
+    state = initialize_new_state()
+```
+
+---
+
+## Cost Tracking Pattern
+
+**Location**: Track cost as `Dict[str, LLMInferenceMetadata]` at the graph/pipeline level.
+
+**Key Structure**:
+```python
+cost_tracking: Dict[str, LLMInferenceMetadata] = {}
+
+# Key naming convention (granular for traceability):
+# "{agent_name}_{iteration_number}_{retry_attempt}"
+# Example: "html_generator_iter_0_attempt_1", "layout_vetter_iter_1_attempt_2"
+
+cost_tracking["html_generator_iter_0_attempt_1"] = LLMInferenceMetadata(
+    input_tokens=1500,
+    output_tokens=2000,
+    cost=0.045
+)
+```
+
+**Why This Pattern**:
+- One dict object holds ALL cost information for an entire pipeline run
+- Granular enough to identify each distinct LLM call
+- Easily aggregated for final cost reporting
+- Better than storing costs individually (cleaner at pipeline level)
+
+**Note**: Base agents already track cost to Prometheus. `LLMInferenceMetadata` is for manual cost observation during pipeline runs.
+
+### Final Cost Summary
+
+At pipeline/run level, print:
+```
+========== FINAL COST SUMMARY ==========
+Total Input Tokens: 15,000
+Total Output Tokens: 8,500
+Total Cost: $0.34
+  - html_generator_iter_0_attempt_1: $0.045 (1500 → 2000 tokens)
+  - layout_vetter_iter_0_attempt_1: $0.012 (800 → 400 tokens)
+  - html_evolver_iter_1_attempt_1: $0.089 (3000 → 4200 tokens)
+  ... more entries ...
+=========================================
+```
+
+---
+
+## Input/Output Message Logging Pattern
+
+### Agent-Level Logging
+
+**Location**: `agents/*.py` - Before calling agent, save messages to timestamped log file
+
+**Implementation Pattern** (from `StepByStepBreakdownAgent`):
+
+```python
+import datetime
+import os
+from langchain_core.messages import HumanMessage, SystemMessage
+from growtrics_commons.core.langchain.log import save_langchain_base_messages_to_file
+
+class MyAgent:
+    def run(self, agent, messages, output_dir: Optional[str] = None):
+        # Prepare messages
+        system_message = SystemMessage(content="...")
+        human_message = HumanMessage(content="...")
+        messages = [system_message, human_message]
+        
+        # Save input messages to file (before calling agent)
+        if output_dir:
+            try:
+                os.makedirs(output_dir, exist_ok=True)
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                debug_log_file = os.path.join(
+                    output_dir,
+                    f"{timestamp}_my_agent_messages.log"
+                )
+                save_langchain_base_messages_to_file(messages, debug_log_file)
+                self.logger.info(f"Saved input messages to {debug_log_file} [run]")
+            except Exception as e:
+                self.logger.warning(f"Failed to save input messages: {e} [run]")
+        
+        # Call agent
+        result = agent.run(
+            messages=messages,
+            output_json_object_class=MyOutputModel,
+            structured_output=True
+        )
+        
+        return result
+```
+
+### Graph/Node-Level Output Logging
+
+**Location**: `graph/nodes/*.py` - After agent execution, save formatted output
+
+**Implementation Pattern** (from `agent_output_logger.py`):
+
+```python
+from services.gb_conceptual_walkthrough.ve_enhancement_v2.utils.agent_output_logger import (
+    save_html_generator_output,
+    save_vetter_output,
+    save_figure_determiner_output,
+    # ... more save functions ...
+)
+
+# In your node
+result = self.agent.run(messages, ...)
+
+# Save output with metrics, reasoning, before/after artifacts
+if output_dir:
+    save_html_generator_output(
+        agent_result=result,
+        output_dir=output_dir,
+        logger=self.logger
+    )
+```
+
+**What Gets Logged**:
+- ✅ Metrics (input tokens, output tokens, cost, success/failure)
+- ✅ Agent output (structured or raw)
+- ✅ Reasoning/explanation (if applicable)
+- ✅ Before/After artifacts (HTML diffs, image comparisons)
+- ✅ Patch results for code generation
+- ✅ Error details with status codes
+- ✅ Full structured output dump
+
+**File Format**:
+```
+20250108_143022_agent_html_generator.log
+20250108_143022_generated.html               # Separate artifact
+20250108_143024_agent_layout_vetter.log
+... timestamped for easy ordering and tracing
+```
+
+### agent_output_logger Functions
+
+**Location**: `services/gb_conceptual_walkthrough/ve_enhancement_v2/utils/agent_output_logger.py`
+
+These utility functions save agent outputs to readable `.log` files with consistent formatting. Each function handles a specific agent type.
+
+**Generic Save Function Pattern**:
+
+```python
+def save_html_generator_output(
+    agent_result: AgentOutput[HTMLGeneratorOutput_GenAI],
+    output_dir: str,
+    logger: Logger,
+) -> None:
+    """
+    Save HTMLGenerator agent output to a timestamped .log file.
+    
+    What gets saved:
+    1. HEADER: Agent name and timestamp
+    2. METRICS: Input/output tokens, cost, success/failure status
+    3. OUTPUT: The structured agent output (HTML, reasoning, etc.)
+    4. ARTIFACTS: Separate files for generated HTML
+    5. ERRORS: If any, detailed error information
+    6. FULL DUMP: Complete model dump as JSON
+    
+    Files created:
+    - 20250108_143022_agent_html_generator.log (main log with all info)
+    - 20250108_143022_generated.html (the generated HTML artifact)
+    """
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = _nowstr()  # "20250108_143022"
+        log_filename = f"{timestamp}_agent_html_generator.log"
+        log_path = os.path.join(output_dir, log_filename)
+        
+        with open(log_path, "w", encoding="utf-8") as f:
+            # Header
+            f.write("=" * 80 + "\n")
+            f.write("[HTML GENERATOR] HTML GENERATOR AGENT OUTPUT\n")
+            f.write("=" * 80 + "\n\n")
+            
+            # Metrics (always included)
+            f.write("METRICS:\n")
+            f.write(f"  Input Tokens: {agent_result.input_tokens}\n")
+            f.write(f"  Output Tokens: {agent_result.output_tokens}\n")
+            f.write(f"  Cost: ${agent_result.cost:.6f}\n")
+            f.write(f"  Status: {'✓ Success' if agent_result.ok else '✗ Failed'}\n\n")
+            
+            agent_output = agent_result.content
+            
+            # Generated HTML section
+            if isinstance(agent_output, HTMLGeneratorOutput_GenAI):
+                f.write("GENERATED HTML:\n")
+                f.write("-" * 80 + "\n")
+                f.write(agent_output.html)
+                f.write("\n")
+                f.write("-" * 80 + "\n\n")
+                
+                f.write("REASONING:\n")
+                f.write("-" * 80 + "\n")
+                f.write(agent_output.reasoning)
+                f.write("\n")
+                f.write("-" * 80 + "\n\n")
+                
+                # Save HTML to separate file
+                html_file = os.path.join(output_dir, f"{timestamp}_generated.html")
+                with open(html_file, "w", encoding="utf-8") as html_f:
+                    html_f.write(agent_output.html)
+                logger.info(f"Saved generated HTML to {html_file}")
+            
+            # Full structured output
+            f.write("FULL OUTPUT:\n")
+            f.write("-" * 80 + "\n")
+            output_dict = agent_output.model_dump()
+            for line in _format_dict_for_log(output_dict, indent=1):
+                f.write(line + "\n")
+            f.write("-" * 80 + "\n\n")
+            
+            # Error section (if any)
+            if agent_result.error:
+                f.write("ERROR:\n")
+                f.write(f"  Type: {agent_result.error.type}\n")
+                f.write(f"  Message: {agent_result.error.message}\n")
+                if agent_result.error.status_code:
+                    f.write(f"  Status Code: {agent_result.error.status_code}\n")
+                f.write("\n")
+        
+        logger.info(f"Saved agent output to {log_path}")
+    
+    except Exception as e:
+        logger.error(f"Failed to save agent output: {e}")
+```
+
+**Key Functions Available**:
+- `save_html_generator_output()` - HTML generation
+- `save_html_evolver_output()` - HTML evolution with before/after diffs
+- `save_html_amender_output()` - HTML amendments with patch results
+- `save_vetter_output()` - Generic vetter (layout, figure, content)
+- `save_figure_determiner_output()` - Figure detection results
+- `save_feedback_orchestrator_output()` - Consolidated feedback
+- `save_generated_image()` - Save image bytes to PNG file
+
+**Pattern**: Each function creates a timestamped `.log` file with structured sections, and optionally saves artifacts (HTML, images, diffs) as separate files.
+
+---
+
+## Typical Pattern Implementations
+
+### Run Script Pattern
+
+**File**: `run/run_generation_bucket_pipeline.py`
+
+```python
+import argparse
+from services.gb_conceptual_walkthrough.ve_enhancement_v2.pipeline.generation_bucket_pipeline import (
+    generation_bucket_pipeline
+)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file", help="Config file path")
+    args = parser.parse_args()
+    
+    # Parse config
+    config = load_config(args.config_file)
+    
+    # Initialize tracing (if needed for local testing)
+    # This is important for cost tracking and debugging
+    
+    logger.info("=" * 80)
+    logger.info("PIPELINE EXECUTION START")
+    logger.info("=" * 80)
+    logger.info(f"Config: {config.model_dump_json(indent=2)}")
+    
+    # Call pipeline
+    result = generation_bucket_pipeline(
+        concept_id=config.concept_id,
+        max_iterations_per_request=config.max_iterations,
+        output_dir=config.output_dir,
+        check_existing=config.check_existing,
+        save_to_db=config.save_to_db,
+    )
+    
+    # Print final summary
+    logger.info("=" * 80)
+    logger.info("PIPELINE EXECUTION COMPLETE")
+    logger.info(f"Success: {result.success}")
+    logger.info(f"Total Cost: ${result.total_cost:.2f}")
+    logger.info(f"Total Input Tokens: {result.total_input_tokens}")
+    logger.info(f"Total Output Tokens: {result.total_output_tokens}")
+    logger.info("=" * 80)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Pipeline Pattern
+
+**File**: `pipeline/generation_bucket_pipeline.py`
+
+```python
+from growtrics_commons.core.tracing import start_contextualized_trace
+
+def generation_bucket_pipeline(
+    concept_id: str,
+    max_iterations_per_request: int = 4,
+    output_dir: Optional[str] = None,
+    check_existing: bool = True,
+    save_to_db: bool = True,
+) -> GenerationBucketPipelineResult:
+    """
+    Orchestrate generation bucket processing.
+    """
+    # NOTE: start_contextualized_trace is OPTIONAL!
+    # Use it for production tracing to Datadog/observability platform.
+    # For local testing/debugging, you can skip it.
+    
+    with start_contextualized_trace(
+        "generation_bucket_pipeline",
+        key=concept_id,  # Use concept_id as business key for trace continuity
+        concept_id=concept_id,
+        max_iterations=max_iterations_per_request,
+    ):
+        logger.info(f"{LOG_PREFIX} Starting pipeline for concept_id={concept_id}")
+        
+        try:
+            # Check for existing results
+            if check_existing:
+                existing = fetch_existing_results(concept_id)
+                if existing:
+                    logger.info(f"Reusing existing results for {concept_id}")
+                    return existing
+            
+            # Initialize graph for each bucket
+            bucket_states = []
+            for bucket_idx, bucket in enumerate(buckets):
+                graph = GenerationBucketGraph(
+                    concept_id=concept_id,
+                    logger=logger
+                )
+                state = graph.run(
+                    bucket_idx=bucket_idx,
+                    bucket=bucket,
+                    max_iterations_per_request=max_iterations_per_request,
+                    output_dir=output_dir,
+                )
+                bucket_states.append(state)
+            
+            # Aggregate and save
+            final_result = aggregate_results(bucket_states)
+            if save_to_db:
+                save_to_firebase(final_result)
+            
+            return GenerationBucketPipelineResult(
+                success=True,
+                bucket_states=bucket_states,
+                total_cost=sum(s.total_cost for s in bucket_states)
+            )
+        
+        except Exception as e:
+            logger.error(f"Pipeline error: {e}")
+            return GenerationBucketPipelineResult(success=False, error=str(e))
+```
+
+**Without Tracing** (for local testing):
+```python
+def generation_bucket_pipeline(
+    concept_id: str,
+    max_iterations_per_request: int = 4,
+    output_dir: Optional[str] = None,
+    check_existing: bool = True,
+    save_to_db: bool = True,
+) -> GenerationBucketPipelineResult:
+    """
+    Orchestrate generation bucket processing (without tracing).
+    """
+    logger.info(f"{LOG_PREFIX} Starting pipeline for concept_id={concept_id}")
+    
+    try:
+        if check_existing:
+            existing = fetch_existing_results(concept_id)
+            if existing:
+                logger.info(f"Reusing existing results for {concept_id}")
+                return existing
+        
+        # ... rest of logic (same as above)
+```
+
+### Graph Pattern (Simple - Direct Agent Calls)
+
+**File**: `graph/breakdown_generation_graph.py` - Without nodes, agents called directly
+
+```python
+import time
+from typing import Dict, Optional
+
+class BreakdownGenerationGraph:
+    """Simple graph: directly calls one agent without nodes."""
+    
+    def __init__(self, logger, output_dir: Optional[str] = None):
+        self.logger = logger
+        self.output_dir = output_dir
+        self.breakdown_agent = StepByStepBreakdownAgent(logger=logger)
+    
+    def run(
+        self,
+        action_id: str,
+        narration_text: str,
+        display_data_description: str,
+    ) -> BreakdownGenerationState:
+        """
+        Run the breakdown generation graph.
+        
+        This graph:
+        1. Calls one agent (StepByStepBreakdownAgent)
+        2. Saves agent output
+        3. Updates state
+        4. No nodes, no routing logic
+        """
+        state = BreakdownGenerationState()
+        
+        self.logger.info(
+            f"{LOG_PREFIX} Starting breakdown generation for action {action_id} [run]"
+        )
+        
+        try:
+            # Create agent
+            agent = OpenAIAgent(
+                llm_used=LLMModelUsed.gpt_5,
+                config=AgentConfig(
+                    log_prefix="STEP_BY_STEP_BREAKDOWN_AGENT",
+                    name="step_by_step_breakdown_agent",
+                ),
+                logger=self.logger,
+                max_tokens=8192,
+            )
+            
+            # Run agent with timing
+            start_time = time.time()
+            result = self.breakdown_agent.run(
+                agent=agent,
+                action_id=action_id,
+                narration_text=narration_text,
+                display_data_description=display_data_description,
+                output_dir=self.output_dir,  # Agent saves input messages here
+            )
+            inference_time = time.time() - start_time
+            
+            # Save metrics to state
+            state.input_tokens = result.input_tokens
+            state.output_tokens = result.output_tokens
+            state.total_cost = result.cost
+            state.inference_time_taken_in_s = inference_time
+            
+            # Check result
+            if result.ok and isinstance(result.content, StepPlan):
+                state.result = result.content
+                self.logger.info(
+                    f"{LOG_PREFIX} Generated step plan with {len(result.content.steps)} steps [run]"
+                )
+            else:
+                error_msg = result.error.message if result.error else "Unknown error"
+                state.pipeline_error = error_msg
+                self.logger.error(f"{LOG_PREFIX} Failed: {error_msg} [run]")
+            
+            # Save agent output (with metrics, artifacts, etc.)
+            if self.output_dir:
+                save_breakdown_agent_output(
+                    agent_result=result,
+                    step_plan=state.result,
+                    output_dir=self.output_dir,
+                    action_id=action_id,
+                    logger=self.logger,
+                )
+        
+        except Exception as e:
+            state.pipeline_error = f"Exception: {str(e)}"
+            self.logger.error(f"{LOG_PREFIX} Error: {e} [run]")
+        
+        return state
+```
+
+**Key Characteristics**:
+- No nodes
+- One agent called directly
+- State is simple and saved once
+- Perfect for single-step operations
+
+---
+
+### Graph Pattern (Complex - With Nodes & Decision Routing)
+
+**File**: `graph/generation_bucket_graph.py` - With nodes and iterative routing
+
+```python
+from growtrics_commons.core.tracing import start_contextualized_trace
+
+class GenerationBucketGraph:
+    """Complex graph: orchestrates multiple nodes with decision-based routing."""
+    
+    def __init__(self, concept_id: str, logger):
+        self.concept_id = concept_id
+        self.logger = logger
+        # Initialize nodes (which may call agents internally)
+        self.generation_node = GenerationNodeCodex(logger=logger)
+        self.rendering_node = RenderingNode(logger=logger)
+        self.vetting_node = VettingNode(logger=logger)
+        self.decision_node = DecisionNode(concept_id=concept_id, logger=logger)
+    
+    def run(
+        self,
+        bucket_idx: int,
+        bucket: VisualGenerationBucket,
+        max_iterations_per_request: int,
+        output_dir: Optional[str] = None,
+        save_to_db: bool = False,
+        check_existing: bool = True,
+    ) -> BucketGraphState:
+        """
+        Run graph with nodes and decision-based routing.
+        Builds around generation state that can be saved & resumed.
+        """
+        # NOTE: Tracing is OPTIONAL
+        logger.info(
+            f"{LOG_PREFIX} Starting bucket {bucket_idx} graph [run]"
+        )
+        
+        state = self._initialize_state(bucket_idx, bucket)
+        step_count = 0
+        max_steps = max_iterations_per_request * len(bucket.requests) + 1
+        
+        while step_count < max_steps:
+            step_count += 1
+            request_state = state.bucket.requests.get(state.current_request_idx)
+            
+            self.logger.info(
+                f"{LOG_PREFIX} ===== STEP {step_count} ===== "
+                f"request={state.current_request_idx}, "
+                f"iteration={state.current_iteration_num} [run]"
+            )
+            
+            # DECISION NODE: Check if generation needed
+            determination = self.decision_node.determine_generation_need(
+                state=state,
+                max_iterations_per_request=max_iterations_per_request,
+                save_to_db=save_to_db,
+                check_existing=check_existing,
+            )
+            
+            if not determination.generation_needed:
+                self.logger.info("Skipping generation (already completed)")
+                state = self._move_to_next_request(state)
+                continue
+            
+            # NODES: Execute generation → rendering → vetting
+            state = self.generation_node.run(
+                state=state,
+                bucket_idx=bucket_idx,
+                request_idx=state.current_request_idx,
+                iteration_num=state.current_iteration_num,
+                narration_text=request_state.narration_text,
+                output_dir=output_dir,
+            )
+            
+            state = self.rendering_node.run(
+                state=state,
+                bucket_idx=bucket_idx,
+                request_idx=state.current_request_idx,
+                iteration_num=state.current_iteration_num,
+                save_to_db=save_to_db,
+                output_dir=output_dir,
+            )
+            
+            state = self.vetting_node.run(
+                state=state,
+                bucket_idx=bucket_idx,
+                request_idx=state.current_request_idx,
+                iteration_num=state.current_iteration_num,
+                narration_text=request_state.narration_text,
+                save_to_db=save_to_db,
+                output_dir=output_dir,
+            )
+            
+            # DECISION NODE: Determine next routing
+            state = self.decision_node.get_next_step_post_generation(state)
+            
+            # PERSISTENCE: Save state to Firestore after each iteration
+            if save_to_db:
+                state_for_db = GenerationBucketGraphStateForDB.from_state(state)
+                state_for_db.update_existing_or_create(logger=self.logger)
+            
+            # Log state for debugging
+            self._log_state_dump(state, step_count)
+            
+            # Check completion/error
+            if state.next_step == NextNodeType.COMPLETED:
+                self.logger.info("All requests completed [run]")
+                break
+            elif state.next_step == NextNodeType.ERROR:
+                self.logger.error(f"Pipeline error: {state.pipeline_error} [run]")
+                break
+        
+        self.logger.info(
+            f"Graph execution finished: completed={state.completed_requests}, "
+            f"cost=${state.total_cost:.2f} [run]"
+        )
+        return state
+    
+    def _log_state_dump(self, state: BucketGraphState, step: int):
+        """Log state as JSON for debugging."""
+        state_summary = {
+            "step": step,
+            "next_step": state.next_step.value,
+            "request_idx": state.current_request_idx,
+            "iteration_num": state.current_iteration_num,
+        }
+        self.logger.info(f"{LOG_PREFIX} STATE_DUMP: {json.dumps(state_summary)} [_log_state_dump]")
+```
+
+### Node Pattern (Orchestrating Agents)
+
+**File**: `graph/nodes/rendering_node.py`
+
+Nodes orchestrate agents and handle state management. They call agents but do NOT save agent outputs (agents do that).
+
+```python
+class RenderingNode:
+    """Orchestrate rendering agent and update state."""
+    
+    def __init__(self, logger):
+        self.logger = logger
+        self.rendering_agent = RenderingAgent(logger=logger)
+    
+    def run(
+        self,
+        state: BucketGraphState,
+        request_idx: int,
+        iteration_num: int,
+        output_dir: Optional[str] = None,
+    ) -> BucketGraphState:
+        """
+        Orchestrate rendering and update state.
+        
+        Responsibilities:
+        1. Extract data from state
+        2. Call agent (agent saves its own output)
+        3. Update state with results
+        4. Return updated state
+        """
+        
+        request_state = state.bucket.requests[request_idx]
+        iteration_state = request_state.iterations[iteration_num]
+        
+        self.logger.info(
+            f"[RENDERING_NODE] Running rendering for request {request_idx}, "
+            f"iteration {iteration_num} [run]"
+        )
+        
+        # Call agent (agent saves its own output to output_dir)
+        result = self.rendering_agent.run(
+            agent=self.agent,
+            html=iteration_state.html,
+            output_dir=output_dir  # Agent saves its own output
+        )
+        
+        # Node: Update state with agent results
+        if result.ok:
+            iteration_state.image_bytes = result.image_bytes
+            iteration_state.status = RequestIterationStatus.IN_PROGRESS
+        else:
+            iteration_state.status = RequestIterationStatus.FAILED
+            iteration_state.rendering_error = result.error.message
+        
+        self.logger.info(
+            f"[RENDERING_NODE] Rendering complete: "
+            f"ok={result.ok}, cost=${result.cost:.4f} [run]"
+        )
+        
+        return state
+```
+
+**Key Responsibilities**:
+- Extract necessary data from state
+- Call agent (passing `output_dir` so agent can save output)
+- Update state based on agent results
+- Handle errors and state transitions
+- Return updated state
+
+**What Node Does NOT Do**:
+- ❌ Save agent output (agent does that)
+- ❌ Log agent input/output (agent does that)
+- ✅ Just orchestrate and update state
+
+### Agent Pattern (Direct LLM Caller)
+
+**File**: `agents/html_generator_agent.py`
+
+Agents are responsible for:
+1. Preparing system and human messages
+2. Saving messages to log file (for debugging)
+3. Calling BaseAgent
+4. Returning AgentOutput (auto-creates child spans)
+
+**Note**: Agents do NOT update state or save output directly. That's the node's responsibility.
+
+```python
+import datetime
+import os
+from langchain_core.messages import HumanMessage, SystemMessage
+from growtrics_commons.agents.base_agent import BaseAgent, AgentOutput
+from growtrics_commons.core.langchain.log import save_langchain_base_messages_to_file
+
+class HTMLGeneratorAgent:
+    """Generate HTML from narration text."""
+    
+    def __init__(self, logger):
+        self.logger = logger
+    
+    def _create_system_message(self) -> SystemMessage:
+        """Prepare system message with instructions."""
+        system_content = """# Context
+You are an HTML generation agent for educational visualizations.
+
+## Your Task
+Create an HTML page that visualizes the given narration text.
+
+## Requirements
+- Use HTML5 and CSS3 only
+- No external dependencies
+- White background
+- Dark text
+- Responsive design
+- No animations (static output only)
+
+## Output Format
+Return ONLY valid HTML (no markdown, no explanations).
+"""
+        return SystemMessage(content=system_content)
+    
+    def _create_human_message(
+        self,
+        narration_text: str,
+        display_data_description: str,
+    ) -> HumanMessage:
+        """Prepare human message with specific content."""
+        content = f"""## Narration
+{narration_text}
+
+## Visual Description
+{display_data_description}
+
+Please generate an HTML visualization that accompanies this narration.
+"""
+        return HumanMessage(content=content)
+    
+    def run(
+        self,
+        agent: BaseAgent,
+        narration_text: str,
+        display_data_description: str,
+        output_dir: Optional[str] = None,
+    ) -> AgentOutput[HTMLGeneratorOutput_GenAI]:
+        """
+        Run the HTML generator agent.
+        
+        Args:
+            agent: BaseAgent instance (e.g., OpenAIAgent)
+            narration_text: The narration to visualize
+            display_data_description: Description of what to display
+            output_dir: Where to save debug logs
+        
+        Returns:
+            AgentOutput with HTMLGeneratorOutput_GenAI
+        """
+        
+        # Prepare messages
+        system_message = self._create_system_message()
+        human_message = self._create_human_message(narration_text, display_data_description)
+        messages = [system_message, human_message]
+        
+        self.logger.info(
+            f"[HTML_GENERATOR_AGENT] Running HTML generation [run]"
+        )
+        
+        # Save input messages to log file (for debugging agent inputs)
+        if output_dir:
+            try:
+                os.makedirs(output_dir, exist_ok=True)
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                debug_log_file = os.path.join(
+                    output_dir,
+                    f"{timestamp}_html_generator_messages.log"
+                )
+                save_langchain_base_messages_to_file(messages, debug_log_file)
+                self.logger.info(
+                    f"[HTML_GENERATOR_AGENT] Saved input messages to {debug_log_file} [run]"
+                )
+            except Exception as e:
+                self.logger.warning(
+                    f"[HTML_GENERATOR_AGENT] Failed to save messages: {e} [run]"
+                )
+        
+        # Call agent with structured output
+        result = agent.run(
+            messages=messages,
+            output_json_object_class=HTMLGeneratorOutput_GenAI,
+            structured_output=True,
+        )
+        
+        self.logger.info(
+            f"[HTML_GENERATOR_AGENT] Agent complete: "
+            f"ok={result.ok}, cost=${result.cost:.4f}, "
+            f"tokens_in={result.input_tokens}, tokens_out={result.output_tokens} [run]"
+        )
+        
+        # Save agent output with metrics and artifacts (AGENT responsibility)
+        if output_dir:
+            save_html_generator_output(
+                agent_result=result,
+                output_dir=output_dir,
+                logger=self.logger
+            )
+        
+        return result
+```
+
+**Key Characteristics**:
+- Separates `_create_system_message()` and `_create_human_message()` for clarity
+- Saves input messages to file for debugging
+- Returns AgentOutput (doesn't manipulate state)
+- Agent is a black box: accepts input, returns output
+
+---
+
+## Decision Nodes Pattern
+
+Decision nodes route between other nodes based on state conditions. Unlike agents, they don't call LLMs but implement business logic.
+
+**Example** (from `decision_node.py`):
+
+```python
+class DecisionNode:
+    def determine_generation_need(
+        self,
+        state: BucketGraphState,
+        max_iterations_per_request: int,
+        save_to_db: bool,
+        check_existing: bool,
+    ) -> DetermineGenerationNeedOutput:
+        """
+        Decide if generation is needed or if we can reuse existing results.
+        """
+        request_state = state.bucket.requests.get(state.current_request_idx)
+        iteration_state = request_state.iterations.get(state.current_iteration_num)
+        
+        # Check 1: Already completed?
+        if request_state.is_completed(save_to_db=save_to_db):
+            logger.info("Request already completed, skipping [determine_generation_need]")
+            return DetermineGenerationNeedOutput(generation_needed=False)
+        
+        # Check 2: Has finalized HTML/image?
+        if request_state.finalized_html and request_state.finalized_img_cloud_storage_path:
+            logger.info("Already has finalized artifacts, skipping [determine_generation_need]")
+            return DetermineGenerationNeedOutput(generation_needed=False)
+        
+        # Check 3: check_existing flag set?
+        if not check_existing:
+            logger.info("check_existing=False, forcing generation [determine_generation_need]")
+            return DetermineGenerationNeedOutput(generation_needed=True)
+        
+        # Default: need generation
+        logger.info("Generation needed [determine_generation_need]")
+        return DetermineGenerationNeedOutput(generation_needed=True)
+    
+    def get_next_step_post_generation(
+        self,
+        state: BucketGraphState,
+        max_iterations_per_request: int,
+    ) -> BucketGraphState:
+        """
+        Determine next routing decision after generation/vetting.
+        """
+        iteration_state = state.current_iteration_state
+        
+        if iteration_state.status == RequestIterationStatus.PASSED:
+            # Vetting passed
+            if state.current_request_idx + 1 < state.bucket.total_requests:
+                # Move to next request
+                state.current_request_idx += 1
+                state.current_iteration_num = 0
+                state.next_step = NextNodeType.GENERATION
+            else:
+                # All done
+                state.next_step = NextNodeType.COMPLETED
+        
+        elif iteration_state.status == RequestIterationStatus.REQUIRE_REGENERATION:
+            # Vetting failed, try again
+            if state.current_iteration_num + 1 < max_iterations_per_request:
+                state.current_iteration_num += 1
+                state.next_step = NextNodeType.GENERATION
+            else:
+                # Max retries exceeded
+                state.next_step = NextNodeType.ERROR
+        
+        return state
+```
+
+---
+
+## Output Folder Structure & Tracing
+
+### Timestamped Output Organization
+
+**Purpose**: Easy tracing and analysis of all inputs/outputs from a single pipeline run
+
+**Structure**:
+```
+output/
+  20250108_143000_concept_xyz/
+    ├── 20250108_143001_input_config.json
+    ├── 20250108_143022_agent_visual_coordinator.log
+    ├── 20250108_143022_generation_buckets.json
+    ├── 20250108_143025_agent_html_generator_iter_0.log
+    ├── 20250108_143025_generated_iter_0.html
+    ├── 20250108_143026_agent_layout_vetter_iter_0.log
+    ├── 20250108_143027_agent_html_evolver_iter_0.log
+    ├── 20250108_143027_before.html
+    ├── 20250108_143027_after.html
+    ├── 20250108_143027_diff.txt
+    ├── 20250108_143050_final_summary.log
+    └── 20250108_143050_cost_breakdown.log
+```
+
+**How to Use**:
+1. All files timestamped → sort by name to see execution order
+2. Each agent call → dedicated `.log` file with metrics, input/output, errors
+3. Artifacts (HTML, images, diffs) → separate files for easy inspection
+4. Zip the entire folder → send to user for complete traceability
+
+**Implementation**:
+```python
+def _initialize_output_dir(base_dir: str, concept_id: str) -> str:
+    """Create timestamped output directory."""
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = os.path.join(base_dir, f"{timestamp}_concept_{concept_id}")
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
+```
+
+---
+
+## Logging Standards
+
+### Log Prefix & Suffix
+
+**Log Format**:
+```python
+logger.info(f"{LOG_PREFIX} Message here [function_name]")
+```
+
+**Log Prefix** (file/component-level):
+```python
+LOG_PREFIX = "[GENERATION_BUCKET_GRAPH]"  # from file module
+LOG_PREFIX = "[HTML_GENERATOR_AGENT]"     # from agent
+LOG_PREFIX = "[RENDERING_NODE]"           # from node
+```
+
+**Log Suffix** (function-level, in square brackets):
+```python
+# In function `run()`:
+logger.info(f"... [run]")
+
+# In function `_initialize_state()`:
+logger.info(f"... [_initialize_state]")
+
+# In function `determine_generation_need()`:
+logger.info(f"... [determine_generation_need]")
+```
+
+### What to Log
+
+✅ **DO**:
+- ✅ Entry/exit of major functions
+- ✅ State transitions and routing decisions
+- ✅ Agent calls with input description
+- ✅ Agent results with metrics (tokens, cost)
+- ✅ Error conditions and recovery attempts
+- ✅ State dumps (JSON) at key decision points
+- ✅ File save operations
+
+❌ **DON'T**:
+- ❌ Full message contents (too verbose)
+- ❌ Sensitive data (API keys, personal info)
+- ❌ Exact token counts in loop iterations (too noisy)
+- ❌ Redundant logs at every step
+
+---
+
+## Environment Handling
+
+### Development vs Production
+
+**Pattern**:
+```python
+def run_pipeline(
+    concept_id: str,
+    check_existing: bool = True,  # Dev: False for testing, Prod: True
+    save_to_db: bool = False,     # Dev: False, Prod: True
+    output_dir: Optional[str] = None,  # Dev: "./output", Prod: "/tmp/..."
+):
+    """
+    check_existing: Reuse existing results from previous runs
+    save_to_db: Persist state to Firebase
+    output_dir: Where to save debug logs/artifacts
+    """
+```
+
+**Typical Settings**:
+- **Development**: `check_existing=False/True, save_to_db=False/True`
+- **Testing**: `check_existing=False, save_to_db=False` (isolated runs)
+- **Production**: `check_existing=True, save_to_db=True`
+
+---
+
+## Testing & Debugging Flow
+
+### Iterative Testing Pattern
+
+1. **Identify problem** → Examine logs from previous run
+2. **Fix implementation** → Update agent/node code
+3. **Run specific sample** → Test only the affected component
+4. **Verify fix** → Check output matches expectations
+5. **Regression test** → Run a few other samples to ensure no breakage
+6. **Move forward** → Proceed to production run if all green
+
+### Cost-Conscious Testing
+
+- ✅ Test with single concept first
+- ✅ Use `check_existing=False, save_to_db=False` to isolate runs
+- ✅ Run only specific request indices: `bucket_request_indices={0: [0, 1]}`
+- ✅ Log all runs for cost analysis: aggregate costs from `agent_output_logger` files
+- ✅ Keep track of token usage per iteration
+
+---
+
+## Summary Checklist
+
+- ✅ Use **concept_id** as tracing key at pipeline/graph level
+- ✅ Track costs as `Dict[str, LLMInferenceMetadata]` (granular by agent call)
+- ✅ Save input messages before agent execution
+- ✅ Save agent outputs with metrics/artifacts using dedicated save functions
+- ✅ Implement decision nodes for routing logic (no LLM calls)
+- ✅ Log state dumps as JSON at key points
+- ✅ Use timestamped output folders for easy traceability
+- ✅ Follow `[LOG_PREFIX] message [function_name]` format
+- ✅ Handle `check_existing` and `save_to_db` appropriately per environment
+- ✅ Implement iterative, cost-conscious testing flow

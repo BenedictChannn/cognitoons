@@ -1,0 +1,17 @@
+---
+description: Always surface git diffs and propose Conventional Commits after each logical change
+alwaysApply: true
+---
+
+# Git Change Visibility + Conventional Commits (MUST FOLLOW)
+
+- After each logical change or batch of edits, show a concise git summary: `git status -sb` plus `git diff --stat`, and list the changed files.
+- If the diff is large or multi-file, show key hunks or ask whether to open the full diff.
+- Split commits logically for review. Avoid bundling unrelated tasks; propose clean tranches when changes span multiple concerns.
+- Propose a short, descriptive Conventional Commit message in `type(scope): summary` form. It should capture the logical change without detailed lists. If multiple tranches make sense, suggest a clean grouping and ask the user to pick.
+- Before committing, run the checks and fix any failures:
+  - Python: `ruff check .`, `ruff format .`, `ty check .` (via venv or `uv run`)
+  - React: `bun run check .`, `bun run format .` 
+- You may run `git commit` without asking for confirmation once pre-commit checks pass.
+- If the user requests a commit mid-task, do it immediately after approval, then continue.
+- At the end of the task, ask whether to `git push` and only run it with explicit user confirmation.

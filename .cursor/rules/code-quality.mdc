@@ -1,0 +1,77 @@
+---
+description: Code quality rules for this repo (TypeScript/Next). Focus on maintainability, correctness, and prompt hygiene.
+alwaysApply: false
+---
+# Code Quality Rules (SWE Standards)
+
+These are repo-wide conventions to keep the codebase maintainable and predictable.
+
+## Core principles (with rationale)
+
+- **DRY (Don’t Repeat Yourself)**: Reduce divergence bugs by having one source of truth for logic/types/constants.
+- **YAGNI (You Aren’t Gonna Need It)**: Avoid premature abstractions; complexity is a cost we pay forever.
+- **SRP (Single Responsibility Principle)**: Small modules/functions are easier to test, refactor, and reason about.
+- **Explicit > clever**: Optimize for readability and correctness, not “smart” one-liners.
+
+## TypeScript: enums vs strings (what we prefer here)
+
+- **Prefer `as const` + derived union types** over both:
+  - raw “magic strings” scattered across files, and
+  - `enum` (which creates a runtime object and can add bundle/interop complexity).
+
+**Pattern A (array → union):**
+
+```ts
+export const FACT_CARD_MODES = ["recruiter", "robotics", "casual", "general"] as const;
+export type FactCardMode = (typeof FACT_CARD_MODES)[number];
+```
+
+**Pattern B (object → union):**
+
+```ts
+export const FactCardMode = {
+  Recruiter: "recruiter",
+  Robotics: "robotics",
+  Casual: "casual",
+  General: "general",
+} as const;
+export type FactCardMode = (typeof FactCardMode)[keyof typeof FactCardMode];
+```
+
+**When `enum` is acceptable:**
+- You need a runtime enum-like object for interop (e.g., external schema generation) and the runtime cost is justified.
+- You are in a non-bundled context where runtime enums are beneficial (rare for this repo).
+
+## Types, constants, and duplication rules
+
+- **Never duplicate unions across files.** Import the type, or derive it from a shared `as const` source-of-truth.
+- **If a set of values is used in 2+ places, centralize it** (constants in one file; types derived from it).
+- **Prefer narrow types** (`readonly` arrays, literal unions) over `string` when the set is known.
+
+## Validation & invariants (fail fast)
+
+- For “must exist” ID lists (e.g., card IDs referenced by `CORE_*` lists), add:
+  - **dev-only runtime checks** (safe, non-prod), and/or
+  - a **verification script** (CI/local) that fails if IDs drift.
+- Prefer deterministic/pure selection functions (same input → same output) to keep prompt assembly debuggable.
+
+## Prompt / markdown assembly hygiene
+
+- **Do not emit empty sections.** Only render a header if the content is non-empty after `trim()`.
+  - Rationale: reduces prompt noise and prevents subtle regressions when upstream selection changes.
+- **Avoid nested same-level headings** (e.g., `###` sections nested inside another `###` section).
+  - Rationale: keeps a clean hierarchy and avoids confusing LLM structure cues.
+- Keep formatting helpers small and composable (formatting logic should not also select data).
+
+## Dev-only diagnostics
+
+- Debug logging utilities must be:
+  - **opt-in** via a flag,
+  - **dev-only**, and
+  - never enabled in production builds by default.
+- Logs must avoid secrets and gated personal data unless explicitly in a local debug context.
+
+## Testing expectations
+
+- When you change selection/gating rules, update or extend verification to prevent regressions.
+- Prefer small assertion scripts for high-value invariants (gating, required cards present, prompt structure).
