@@ -84,3 +84,18 @@
 {"timestamp": "20260225T105213Z", "run_id": "it-compare", "event": "compare_complete", "model_a": "gpt-image-1-mini", "model_b": "gemini-2.5-flash-image"}
 {"timestamp": "20260225T105213Z", "run_id": "it-render", "event": "planning_complete", "storyboard_hash": "01648197c46042bc91808bbad13b081b6dbe0dd58ceb7372d9a900455220487f"}
 {"timestamp": "20260225T105213Z", "run_id": "it-render", "event": "render_complete", "model": "gpt-image-1-mini", "aggregate_score": 0.7156, "estimated_cost_usd": 0.06}
+{"timestamp": "20260225T105258Z", "run_id": "benchmark-20260225t105258z-mcts_uct_beginner-gpt-image-1-mini", "event": "planning_complete", "storyboard_hash": "01648197c46042bc91808bbad13b081b6dbe0dd58ceb7372d9a900455220487f"}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-mcts_uct_beginner-gpt-image-1-mini", "event": "render_complete", "model": "gpt-image-1-mini", "aggregate_score": 0.7673, "estimated_cost_usd": 0.06}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-agent_tool_use-gpt-image-1-mini", "event": "planning_complete", "storyboard_hash": "66846ccdbf04997e775045eb2d476328a38cbc7e121bf035762a36dae9976184"}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-agent_tool_use-gpt-image-1-mini", "event": "render_complete", "model": "gpt-image-1-mini", "aggregate_score": 0.769, "estimated_cost_usd": 0.06}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-mcts_uct_beginner-gemini-2.5-flash-image", "event": "planning_complete", "storyboard_hash": "01648197c46042bc91808bbad13b081b6dbe0dd58ceb7372d9a900455220487f"}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-mcts_uct_beginner-gemini-2.5-flash-image", "event": "render_complete", "model": "gemini-2.5-flash-image", "aggregate_score": 0.7673, "estimated_cost_usd": 0.072}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-agent_tool_use-gemini-2.5-flash-image", "event": "planning_complete", "storyboard_hash": "66846ccdbf04997e775045eb2d476328a38cbc7e121bf035762a36dae9976184"}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225t105258z-agent_tool_use-gemini-2.5-flash-image", "event": "render_complete", "model": "gemini-2.5-flash-image", "aggregate_score": 0.769, "estimated_cost_usd": 0.072}
+{"timestamp": "20260225T105259Z", "run_id": "benchmark-20260225T105258Z", "event": "benchmark_complete", "models": ["gpt-image-1-mini", "gemini-2.5-flash-image"]}
+{"timestamp": "20260225T105259Z", "run_id": "it-compare", "event": "planning_complete", "storyboard_hash": "1f88a0e3973c895ca0e6a3b4aa31c4f3d612cbe87e6e7ee3d58a5bdc8309487c"}
+{"timestamp": "20260225T105300Z", "run_id": "it-compare", "event": "render_complete", "model": "gpt-image-1-mini", "aggregate_score": 0.706, "estimated_cost_usd": 0.04}
+{"timestamp": "20260225T105300Z", "run_id": "it-compare", "event": "render_complete", "model": "gemini-2.5-flash-image", "aggregate_score": 0.706, "estimated_cost_usd": 0.048}
+{"timestamp": "20260225T105300Z", "run_id": "it-compare", "event": "compare_complete", "model_a": "gpt-image-1-mini", "model_b": "gemini-2.5-flash-image"}
+{"timestamp": "20260225T105300Z", "run_id": "it-render", "event": "planning_complete", "storyboard_hash": "01648197c46042bc91808bbad13b081b6dbe0dd58ceb7372d9a900455220487f"}
+{"timestamp": "20260225T105300Z", "run_id": "it-render", "event": "render_complete", "model": "gpt-image-1-mini", "aggregate_score": 0.7156, "estimated_cost_usd": 0.06}
