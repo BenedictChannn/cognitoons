@@ -140,3 +140,30 @@
 **References**
 - run live-uct-api
 - benchmark-20260225T120525Z
+
+### 2026-02-25 - Publish curated live-output artifacts to repository
+
+**Summary**
+- Curated and prepared successful non-dry-run output artifacts for remote sharing.
+- Included live UCT run outputs for gpt-image-1-mini, gemini-2.5-flash-image, and gpt-image-1.5.
+- Included live benchmark leaderboard report artifacts for reference.
+
+**Details**
+- Only selected successful output folders are being tracked to avoid committing full raw live benchmark payloads.
+- README updated to document separate live-output root convention for real API showcase artifacts.
+
+**Files touched**
+- `live-outputs/experiments/live-uct-api`
+- `live-outputs/experiments/benchmark-20260225T120525Z`
+- `README.md`
+
+**Impact**
+- Provides concrete real-image evidence in remote branch for review and demos.
+- Keeps repository size more controlled than full raw artifact dump.
+
+**Follow-ups**
+- Optionally move large binary showcase assets to object storage/CDN in future paid-user setup.
+
+**References**
+- run live-uct-api
+- benchmark-20260225T120525Z

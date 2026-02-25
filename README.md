@@ -174,6 +174,12 @@ Global:
 - `<output_root_parent>/panel_cache.json` (prompt+model cache for panel reuse)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
 
+Live showcase artifacts (real API runs) can be kept in a separate output root,
+for example:
+
+- `live-outputs/experiments/live-uct-api/`
+- `live-outputs/experiments/benchmark-<timestamp>/`
+
 ---
 
 ## Benchmark dataset
