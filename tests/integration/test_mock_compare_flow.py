@@ -8,7 +8,16 @@ from comicstrip_tutor.storage.artifact_store import ArtifactStore
 
 
 def test_mock_compare_flow(tmp_path: Path) -> None:
-    config = AppConfig(openai_api_key=None, gemini_api_key=None, output_root=tmp_path)
+    config = AppConfig(
+        openai_api_key=None,
+        gemini_api_key=None,
+        output_root=tmp_path,
+        provider_timeout_s=30,
+        provider_max_retries=1,
+        provider_backoff_s=0.2,
+        circuit_fail_threshold=2,
+        circuit_cooldown_s=30,
+    )
     store = ArtifactStore(tmp_path)
     run_planning_pipeline(
         run_config=RunConfig(

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from comicstrip_tutor.image_models.base import PanelImageRequest
 from comicstrip_tutor.image_models.gemini_image import GeminiImageModel
+from comicstrip_tutor.image_models.reliability import CircuitBreakerStore, ReliabilityPolicy
 
 
 class _InlineData:
@@ -44,7 +45,19 @@ class _Client:
 
 
 def test_gemini_adapter_generate_content_path(tmp_path: Path) -> None:
-    model = GeminiImageModel("gemini-2.5-flash-image", "cheap", api_key=None)
+    model = GeminiImageModel(
+        "gemini-2.5-flash-image",
+        "cheap",
+        api_key=None,
+        reliability_policy=ReliabilityPolicy(
+            timeout_s=10,
+            max_retries=0,
+            backoff_s=0,
+            circuit_fail_threshold=2,
+            circuit_cooldown_s=10,
+        ),
+        circuit_store=CircuitBreakerStore(tmp_path / "provider_circuit.json"),
+    )
     model._client = _Client(b"fake-image-bytes")
     out_path = tmp_path / "panel.png"
     result = model.generate_panel_image(

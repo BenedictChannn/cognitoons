@@ -9,7 +9,16 @@ from comicstrip_tutor.storage.artifact_store import ArtifactStore
 
 def test_render_cache_reuses_previous_panel_outputs(tmp_path: Path) -> None:
     output_root = tmp_path / "runs" / "experiments"
-    app_config = AppConfig(openai_api_key=None, gemini_api_key=None, output_root=output_root)
+    app_config = AppConfig(
+        openai_api_key=None,
+        gemini_api_key=None,
+        output_root=output_root,
+        provider_timeout_s=30,
+        provider_max_retries=1,
+        provider_backoff_s=0.2,
+        circuit_fail_threshold=2,
+        circuit_cooldown_s=30,
+    )
     store = ArtifactStore(output_root=output_root)
     run_config = RunConfig(
         run_id="cache-reuse",

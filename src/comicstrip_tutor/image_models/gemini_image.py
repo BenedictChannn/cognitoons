@@ -16,17 +16,31 @@ from comicstrip_tutor.image_models.base import (
 )
 from comicstrip_tutor.image_models.mock_render import create_placeholder_image
 from comicstrip_tutor.image_models.pricing import estimate_cost
+from comicstrip_tutor.image_models.reliability import (
+    CircuitBreakerStore,
+    ReliabilityPolicy,
+    run_with_reliability,
+)
 
 
 class GeminiImageModel(ImageModel):
     """Gemini image model wrapper."""
 
-    def __init__(self, model_id: str, tier: ModelTier, api_key: str | None):
+    def __init__(
+        self,
+        model_id: str,
+        tier: ModelTier,
+        api_key: str | None,
+        reliability_policy: ReliabilityPolicy,
+        circuit_store: CircuitBreakerStore,
+    ):
         self.model_id = model_id
         self.provider = "google"
         self.tier = tier
         self.supports_reference_images = False
         self._client = genai.Client(api_key=api_key) if api_key else None
+        self._reliability_policy = reliability_policy
+        self._circuit_store = circuit_store
 
     def _usage_dict(self, response: Any) -> dict[str, Any]:
         usage_metadata = getattr(response, "usage_metadata", None)
@@ -97,10 +111,17 @@ class GeminiImageModel(ImageModel):
                 estimated_cost_usd=estimate_cost(self.model_id, 1),
             )
 
-        if self.model_id.startswith("imagen-"):
-            image_bytes, usage = self._generate_with_imagen_predict(final_prompt)
-        else:
-            image_bytes, usage = self._generate_with_gemini_content(final_prompt)
+        def _operation() -> tuple[bytes, dict[str, Any]]:
+            if self.model_id.startswith("imagen-"):
+                return self._generate_with_imagen_predict(final_prompt)
+            return self._generate_with_gemini_content(final_prompt)
+
+        image_bytes, usage = run_with_reliability(
+            key=f"google:{self.model_id}",
+            policy=self._reliability_policy,
+            circuit_store=self._circuit_store,
+            operation=_operation,
+        )
         out_path = Path(request.output_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_bytes(image_bytes)

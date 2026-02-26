@@ -16,6 +16,11 @@ from comicstrip_tutor.image_models.base import (
 )
 from comicstrip_tutor.image_models.mock_render import create_placeholder_image
 from comicstrip_tutor.image_models.pricing import estimate_cost
+from comicstrip_tutor.image_models.reliability import (
+    CircuitBreakerStore,
+    ReliabilityPolicy,
+    run_with_reliability,
+)
 
 OpenAIImageSize = Literal[
     "auto",
@@ -40,16 +45,26 @@ def _size_str(width: int, height: int) -> OpenAIImageSize:
 class OpenAIImageModel(ImageModel):
     """OpenAI image model wrapper."""
 
-    def __init__(self, model_id: str, tier: ModelTier, api_key: str | None):
+    def __init__(
+        self,
+        model_id: str,
+        tier: ModelTier,
+        api_key: str | None,
+        reliability_policy: ReliabilityPolicy,
+        circuit_store: CircuitBreakerStore,
+    ):
         self.model_id = model_id
         self.provider = "openai"
         self.tier = tier
         self.supports_reference_images = False
         self._client = OpenAI(api_key=api_key) if api_key else None
+        self._reliability_policy = reliability_policy
+        self._circuit_store = circuit_store
 
     def generate_panel_image(self, request: PanelImageRequest) -> PanelImageResult:
         final_prompt = f"{request.style_guide}\n\nPanel {request.panel_number}\n{request.prompt}"
-        if request.dry_run or self._client is None:
+        client = self._client
+        if request.dry_run or client is None:
             create_placeholder_image(
                 output_path=request.output_path,
                 title=f"{self.model_id} (dry-run)",
@@ -63,10 +78,18 @@ class OpenAIImageModel(ImageModel):
                 estimated_cost_usd=estimate_cost(self.model_id, 1),
             )
 
-        response = self._client.images.generate(
-            model=self.model_id,
-            prompt=final_prompt,
-            size=_size_str(request.width, request.height),
+        def _operation() -> Any:
+            return client.images.generate(
+                model=self.model_id,
+                prompt=final_prompt,
+                size=_size_str(request.width, request.height),
+            )
+
+        response = run_with_reliability(
+            key=f"openai:{self.model_id}",
+            policy=self._reliability_policy,
+            circuit_store=self._circuit_store,
+            operation=_operation,
         )
         response_data = response.data or []
         if not response_data:

@@ -5,7 +5,16 @@ from comicstrip_tutor.config import AppConfig
 
 
 def test_mock_benchmark_flow(tmp_path: Path) -> None:
-    config = AppConfig(openai_api_key=None, gemini_api_key=None, output_root=tmp_path / "runs")
+    config = AppConfig(
+        openai_api_key=None,
+        gemini_api_key=None,
+        output_root=tmp_path / "runs",
+        provider_timeout_s=30,
+        provider_max_retries=1,
+        provider_backoff_s=0.2,
+        circuit_fail_threshold=2,
+        circuit_cooldown_s=30,
+    )
     dataset = Path("benchmark/comic_benchmark_v1.json")
     result = run_benchmark(
         dataset_path=dataset,
