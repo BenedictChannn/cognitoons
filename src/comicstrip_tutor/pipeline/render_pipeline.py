@@ -14,11 +14,13 @@ from comicstrip_tutor.evaluation.scorer import score_render_run
 from comicstrip_tutor.image_models.base import ImageModel, PanelImageRequest, PanelImageResult
 from comicstrip_tutor.image_models.registry import create_model
 from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
+from comicstrip_tutor.pipeline.error_taxonomy import classify_render_exception
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
 from comicstrip_tutor.schemas.runs import (
     CritiqueMode,
     ImageTextMode,
     PanelRenderRecord,
+    RenderCompletionStatus,
     RenderRunManifest,
     RunConfig,
 )
@@ -169,74 +171,99 @@ def render_storyboard(
                 estimated_cost_usd=fallback_result.estimated_cost_usd,
             )
 
-    for panel in storyboard.panels:
-        prompt = build_panel_prompt(
-            storyboard,
-            panel,
-            image_text_mode=resolved_image_text_mode,
-        )
-        prompt_file = paths.prompts_dir / f"panel_{panel.panel_number:02d}.txt"
-        write_text(prompt_file, prompt + "\n")
-        prompt_files.append(prompt_file)
-        prompts_joined.append(prompt)
+    completion_status: RenderCompletionStatus = "success"
+    error_type: str | None = None
+    error_message: str | None = None
+    caught_exception: Exception | None = None
+    evaluation = None
 
-        output_path = model_image_dir / f"panel_{panel.panel_number:02d}.png"
-        cache_key = _panel_cache_key(
-            model_key=model_key,
-            mode=mode,
-            width=width,
-            height=height,
-            style_guide=storyboard.character_style_guide,
-            prompt=prompt,
-        )
-        cache_hit = panel_cache.get(cache_key)
-        result: PanelImageResult
-        if cache_hit and isinstance(cache_hit.get("image_path"), str):
-            cached_image_path = Path(cache_hit["image_path"])
-            if cached_image_path.exists():
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                if cached_image_path != output_path:
-                    copy2(cached_image_path, output_path)
-                result = PanelImageResult(
-                    image_path=str(output_path),
-                    provider_usage={
-                        "cache_hit": True,
-                        "source_image_path": str(cached_image_path),
-                    },
-                    estimated_cost_usd=0.0,
-                )
+    try:
+        for panel in storyboard.panels:
+            prompt = build_panel_prompt(
+                storyboard,
+                panel,
+                image_text_mode=resolved_image_text_mode,
+            )
+            prompt_file = paths.prompts_dir / f"panel_{panel.panel_number:02d}.txt"
+            write_text(prompt_file, prompt + "\n")
+            prompt_files.append(prompt_file)
+            prompts_joined.append(prompt)
+
+            output_path = model_image_dir / f"panel_{panel.panel_number:02d}.png"
+            cache_key = _panel_cache_key(
+                model_key=model_key,
+                mode=mode,
+                width=width,
+                height=height,
+                style_guide=storyboard.character_style_guide,
+                prompt=prompt,
+            )
+            cache_hit = panel_cache.get(cache_key)
+            result: PanelImageResult
+            if cache_hit and isinstance(cache_hit.get("image_path"), str):
+                cached_image_path = Path(cache_hit["image_path"])
+                if cached_image_path.exists():
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    if cached_image_path != output_path:
+                        copy2(cached_image_path, output_path)
+                    result = PanelImageResult(
+                        image_path=str(output_path),
+                        provider_usage={
+                            "cache_hit": True,
+                            "source_image_path": str(cached_image_path),
+                        },
+                        estimated_cost_usd=0.0,
+                    )
+                else:
+                    result = _generate_panel_image(output_path, panel.panel_number, prompt)
             else:
                 result = _generate_panel_image(output_path, panel.panel_number, prompt)
-        else:
-            result = _generate_panel_image(output_path, panel.panel_number, prompt)
-        panel_cache.set(
-            cache_key,
-            {
-                "image_path": str(output_path),
-                "model_key": model_key,
-                "mode": mode,
-                "prompt_hash": sha256_text(prompt),
-            },
-        )
-        image_files.append(Path(result.image_path))
-        panel_records.append(
-            PanelRenderRecord(
-                panel_number=panel.panel_number,
-                prompt_path=str(prompt_file),
-                image_path=result.image_path,
-                estimated_cost_usd=result.estimated_cost_usd,
-                provider_usage=result.provider_usage,
+            panel_cache.set(
+                cache_key,
+                {
+                    "image_path": str(output_path),
+                    "model_key": model_key,
+                    "mode": mode,
+                    "prompt_hash": sha256_text(prompt),
+                },
             )
-        )
+            image_files.append(Path(result.image_path))
+            panel_records.append(
+                PanelRenderRecord(
+                    panel_number=panel.panel_number,
+                    prompt_path=str(prompt_file),
+                    image_path=result.image_path,
+                    estimated_cost_usd=result.estimated_cost_usd,
+                    provider_usage=result.provider_usage,
+                )
+            )
 
-    output_strip_png = paths.composite_dir / model_key / "strip.png"
-    output_strip_pdf = paths.composite_dir / model_key / "strip.pdf"
-    compose_strip(
-        storyboard=storyboard,
-        panel_image_paths=[str(path) for path in image_files],
-        output_png=output_strip_png,
-        output_pdf=output_strip_pdf,
-    )
+        output_strip_png = paths.composite_dir / model_key / "strip.png"
+        output_strip_pdf = paths.composite_dir / model_key / "strip.pdf"
+        compose_strip(
+            storyboard=storyboard,
+            panel_image_paths=[str(path) for path in image_files],
+            output_png=output_strip_png,
+            output_pdf=output_strip_pdf,
+        )
+        evaluation = score_render_run(
+            run_id=run_id,
+            model_key=model_key,
+            storyboard=storyboard,
+            expected_key_points=resolved_expected_key_points,
+            prompt_paths=prompt_files,
+            image_paths=image_files,
+            enable_llm_judge=enable_llm_judge,
+            critique_report=critique_report,
+        )
+        if mode == "publish" and resolved_critique_mode == "strict" and not evaluation.publishable:
+            raise ValueError("publish_gate_blocked: " + "; ".join(evaluation.publishable_reasons))
+    except Exception as exc:  # noqa: BLE001
+        caught_exception = exc
+        error_type, error_message = classify_render_exception(exc)
+        completion_status = "partial_success" if panel_records else "failure"
+        manifest_notes.append(f"render_error={error_type}")
+
     prompt_hash = sha256_text("\n".join(prompts_joined))
     storyboard_hash = sha256_text(storyboard.model_dump_json())
     manifest = RenderRunManifest(
@@ -250,34 +277,42 @@ def render_storyboard(
         total_estimated_cost_usd=round(
             sum(record.estimated_cost_usd for record in panel_records), 4
         ),
+        completion_status=completion_status,
+        error_type=error_type,
+        error_message=error_message,
         notes=list(dict.fromkeys(manifest_notes)),
     )
     write_json(paths.root / f"manifest_{model_key}.json", manifest.model_dump())
 
-    evaluation = score_render_run(
-        run_id=run_id,
-        model_key=model_key,
-        storyboard=storyboard,
-        expected_key_points=resolved_expected_key_points,
-        prompt_paths=prompt_files,
-        image_paths=image_files,
-        enable_llm_judge=enable_llm_judge,
-        critique_report=critique_report,
-    )
-    if mode == "publish" and resolved_critique_mode == "strict" and not evaluation.publishable:
-        raise RuntimeError(
-            "Publish render blocked by LES gates: " + "; ".join(evaluation.publishable_reasons)
+    if evaluation is not None:
+        write_json(paths.evaluations_dir / f"{model_key}.json", evaluation.model_dump())
+        store.append_registry(
+            {
+                "run_id": run_id,
+                "event": "render_complete",
+                "model": model_key,
+                "aggregate_score": evaluation.metrics.aggregate,
+                "estimated_cost_usd": manifest.total_estimated_cost_usd,
+                "critique_score": critique_report.overall_score,
+                "critique_mode": resolved_critique_mode,
+                "completion_status": completion_status,
+            }
         )
-    write_json(paths.evaluations_dir / f"{model_key}.json", evaluation.model_dump())
-    store.append_registry(
-        {
-            "run_id": run_id,
-            "event": "render_complete",
-            "model": model_key,
-            "aggregate_score": evaluation.metrics.aggregate,
-            "estimated_cost_usd": manifest.total_estimated_cost_usd,
-            "critique_score": critique_report.overall_score,
-            "critique_mode": resolved_critique_mode,
-        }
-    )
+    else:
+        store.append_registry(
+            {
+                "run_id": run_id,
+                "event": "render_failed",
+                "model": model_key,
+                "error_type": error_type or "unknown_failure",
+                "error_message": error_message or "",
+                "estimated_cost_usd": manifest.total_estimated_cost_usd,
+                "completion_status": completion_status,
+            }
+        )
+
+    if caught_exception is not None:
+        raise RuntimeError(
+            f"Render ended with {completion_status}: {error_type} - {error_message}"
+        ) from caught_exception
     return manifest

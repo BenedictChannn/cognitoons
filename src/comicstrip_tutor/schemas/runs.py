@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 RunMode = Literal["draft", "publish"]
 CritiqueMode = Literal["off", "warn", "strict"]
 ImageTextMode = Literal["none", "minimal", "full"]
+RenderCompletionStatus = Literal["success", "partial_success", "failure"]
 
 
 class RunConfig(BaseModel):
@@ -52,6 +53,9 @@ class RenderRunManifest(BaseModel):
     started_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     panel_records: list[PanelRenderRecord] = Field(default_factory=list)
     total_estimated_cost_usd: float = 0.0
+    completion_status: RenderCompletionStatus = "success"
+    error_type: str | None = None
+    error_message: str | None = None
     notes: list[str] = Field(default_factory=list)
 
 
