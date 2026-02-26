@@ -233,3 +233,37 @@
 
 **References**
 - commits 7796e54, b5e5023, 52364e9
+
+### 2026-02-26 - Add critique rewrite loop, LES publishability gates, and exploration bandit scaffolding
+
+**Summary**
+- Implemented automatic critique-driven storyboard rewrite loop with iteration artifacts and strict blocking when unresolved issues persist.
+- Extended evaluation with publishability verdict and reasons based on LES/comprehension/rigor thresholds.
+- Upgraded benchmark leaderboard/reporting to expose LES, comprehension, rigor, and publish-gate pass rate.
+- Added persistent UCB exploration bandit store with CLI commands to suggest next arm and inspect arm stats.
+
+**Details**
+- Planning and pre-render critique pipelines now persist per-iteration critique and rewrite-note artifacts.
+- Render publish mode now enforces strict publishability gates (LES >= 0.80, comprehension >= 0.80, rigor >= 0.95 + structural checks).
+- Benchmark runner now records exploration arm outcomes into exploration_bandit.json for future exploit/explore policy.
+
+**Files touched**
+- `src/comicstrip_tutor/pipeline/critique_pipeline.py`
+- `src/comicstrip_tutor/critique/rewrite.py`
+- `src/comicstrip_tutor/evaluation/scorer.py`
+- `src/comicstrip_tutor/benchmark/leaderboard.py`
+- `src/comicstrip_tutor/exploration/bandit.py`
+- `src/comicstrip_tutor/cli.py`
+
+**Impact**
+- Moves critique from advisory-only to iterative quality-improvement loop with measurable exit gates.
+- Improves benchmark signal alignment with learning outcomes and release readiness.
+- Introduces data foundation for exploration-vs-exploitation arm policy optimization.
+
+**Follow-ups**
+- Add report-level visual diagnostics explaining why publish gate failed per run/model.
+- Feed user preference ratings into bandit reward shaping.
+
+**References**
+- commits d3d5a74, 0ab9172
+- checkpoint runs: checkpoint-rewrite-v3, benchmark-20260226T071211Z, benchmark-20260226T071507Z
