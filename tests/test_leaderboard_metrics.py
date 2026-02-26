@@ -23,6 +23,7 @@ def test_leaderboard_aggregates_les_and_publish_gate_rate() -> None:
             comprehension_score=0.79,
             technical_rigor_score=0.94,
             publishable=False,
+            publishable_reasons=["Technical rigor score below threshold (0.95)."],
             cost_usd=0.02,
             run_id="run-b",
         ),
@@ -33,3 +34,4 @@ def test_leaderboard_aggregates_les_and_publish_gate_rate() -> None:
     assert row["model_key"] == "gpt-image-1-mini"
     assert float(row["mean_les"]) == 0.8
     assert float(row["publish_gate_pass_rate"]) == 0.5
+    assert "Technical rigor score below threshold" in str(row["top_gate_failures"])

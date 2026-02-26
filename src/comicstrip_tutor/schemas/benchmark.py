@@ -25,6 +25,7 @@ class BenchmarkModelResult(BaseModel):
     comprehension_score: float | None = Field(default=None, ge=0, le=1)
     technical_rigor_score: float | None = Field(default=None, ge=0, le=1)
     publishable: bool = False
+    publishable_reasons: list[str] = Field(default_factory=list)
     cost_usd: float = Field(ge=0, default=0)
     run_id: str
 

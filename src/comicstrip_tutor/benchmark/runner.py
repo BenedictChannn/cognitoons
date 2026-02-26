@@ -11,6 +11,7 @@ from comicstrip_tutor.benchmark.early_stop import should_early_stop
 from comicstrip_tutor.benchmark.leaderboard import build_leaderboard
 from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.constants import CHEAP_FIRST_MODEL_ORDER
+from comicstrip_tutor.exploration.arms import build_arm_id
 from comicstrip_tutor.exploration.bandit import ExplorationBanditStore
 from comicstrip_tutor.pipeline.planner_pipeline import run_planning_pipeline
 from comicstrip_tutor.pipeline.render_pipeline import render_storyboard
@@ -35,6 +36,7 @@ class ScoreSignals(TypedDict):
     comprehension_score: float | None
     technical_rigor_score: float | None
     publishable: bool
+    publishable_reasons: list[str]
 
 
 def _score_signals_for_run(run_root: Path, model_key: str) -> ScoreSignals:
@@ -43,6 +45,7 @@ def _score_signals_for_run(run_root: Path, model_key: str) -> ScoreSignals:
     les = payload.get("learning_effectiveness_score")
     comprehension_score = payload.get("comprehension_score")
     technical_rigor_score = payload.get("technical_rigor_score")
+    publishable_reasons = [str(reason) for reason in payload.get("publishable_reasons", [])]
     if les is not None:
         score = float(les)
     else:
@@ -68,6 +71,7 @@ def _score_signals_for_run(run_root: Path, model_key: str) -> ScoreSignals:
             float(technical_rigor_score) if technical_rigor_score is not None else None
         ),
         "publishable": publishable,
+        "publishable_reasons": publishable_reasons,
     }
 
 
@@ -127,12 +131,16 @@ def run_benchmark(
                     comprehension_score=score_signals["comprehension_score"],
                     technical_rigor_score=score_signals["technical_rigor_score"],
                     publishable=bool(score_signals["publishable"]),
+                    publishable_reasons=score_signals["publishable_reasons"],
                     cost_usd=manifest.total_estimated_cost_usd,
                     run_id=run_id,
                 )
             )
-            arm_id = (
-                f"{run_config.template}|{run_config.theme}|{model_key}|{run_config.image_text_mode}"
+            arm_id = build_arm_id(
+                template=run_config.template,
+                theme=run_config.theme,
+                model_key=model_key,
+                image_text_mode=run_config.image_text_mode,
             )
             adjusted_reward = max(
                 0.0,

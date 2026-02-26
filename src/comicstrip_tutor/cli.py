@@ -12,6 +12,7 @@ from rich.table import Table
 
 from comicstrip_tutor.benchmark.runner import run_benchmark
 from comicstrip_tutor.config import AppConfig
+from comicstrip_tutor.exploration.arms import build_arm_id
 from comicstrip_tutor.exploration.bandit import ExplorationBanditStore
 from comicstrip_tutor.image_models.registry import list_models
 from comicstrip_tutor.logging_utils import configure_logging
@@ -28,7 +29,7 @@ from comicstrip_tutor.pipeline.storyboard_editor import (
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.build_log import BuildLogEntry, append_build_log, ensure_topic_log
-from comicstrip_tutor.storage.io_utils import read_json
+from comicstrip_tutor.storage.io_utils import read_json, write_json
 from comicstrip_tutor.styles.templates import list_templates
 from comicstrip_tutor.styles.themes import list_themes
 from comicstrip_tutor.utils.time_utils import utc_timestamp
@@ -103,7 +104,12 @@ def suggest_arm(
     theme_list = [entry.strip() for entry in themes.split(",") if entry.strip()]
     text_mode_list = [entry.strip() for entry in text_modes.split(",") if entry.strip()]
     candidates = [
-        f"{template}|{theme}|{model}|{text_mode}"
+        build_arm_id(
+            template=template,
+            theme=theme,
+            model_key=model,
+            image_text_mode=text_mode,
+        )
         for template in template_list
         for theme in theme_list
         for model in model_list
@@ -131,6 +137,68 @@ def bandit_stats(limit: int = typer.Option(10, "--limit", min=1)) -> None:
             f"{stat.total_cost_usd:.4f}",
         )
     console.print(table)
+
+
+@app.command("rate-run")
+def rate_run(
+    run_id: str = typer.Argument(...),
+    model: str = typer.Option(..., "--model"),
+    rating: int = typer.Option(..., "--rating", min=1, max=5),
+    note: str | None = typer.Option(None, "--note"),
+) -> None:
+    """Record user preference rating for a rendered run."""
+    config = _app_config()
+    store = ArtifactStore(config.output_root)
+    paths = store.open_run(run_id)
+    run_config_payload = read_json(paths.root / "run_config.json")
+    manifest_payload = read_json(paths.root / f"manifest_{model}.json")
+    evaluation_payload = read_json(paths.evaluations_dir / f"{model}.json")
+
+    template = str(run_config_payload.get("template", "intuition-to-formalism"))
+    theme = str(run_config_payload.get("theme", "clean-whiteboard"))
+    image_text_mode = str(run_config_payload.get("image_text_mode", "none"))
+    arm_id = build_arm_id(
+        template=template,
+        theme=theme,
+        model_key=model,
+        image_text_mode=image_text_mode,
+    )
+    rating_reward = rating / 5.0
+    les_score = evaluation_payload.get("learning_effectiveness_score")
+    les_reward = float(les_score) if les_score is not None else rating_reward
+    blended_reward = round((0.7 * les_reward) + (0.3 * rating_reward), 4)
+    total_cost_usd = float(manifest_payload.get("total_estimated_cost_usd", 0.0))
+
+    _bandit_store().record(
+        arm_id=arm_id,
+        reward=blended_reward,
+        cost_usd=total_cost_usd,
+    )
+    feedback_payload = {
+        "run_id": run_id,
+        "model_key": model,
+        "arm_id": arm_id,
+        "user_rating": rating,
+        "rating_reward": rating_reward,
+        "les_reward": les_reward,
+        "blended_reward": blended_reward,
+        "note": note or "",
+    }
+    feedback_path = paths.reports_dir / f"user_feedback_{model}.json"
+    write_json(feedback_path, feedback_payload)
+    store.append_registry(
+        {
+            "run_id": run_id,
+            "event": "user_feedback",
+            "model": model,
+            "arm_id": arm_id,
+            "rating": rating,
+            "blended_reward": blended_reward,
+        }
+    )
+    console.print(f"[green]Recorded feedback for[/green] {run_id} / {model}")
+    console.print(f"[green]Arm:[/green] {arm_id}")
+    console.print(f"[green]Blended reward:[/green] {blended_reward:.4f}")
 
 
 @app.command("generate")
@@ -295,15 +363,19 @@ def benchmark(
     table.add_column("Mean LES")
     table.add_column("Mean Score")
     table.add_column("Publish Gate Pass")
+    table.add_column("Top Gate Failure")
     table.add_column("Total Cost (USD)")
     for row in result.leaderboard:
         mean_les = float(row.get("mean_les", row["mean_score"]))
         publish_gate = float(row.get("publish_gate_pass_rate", 0.0))
+        top_gate_failures = str(row.get("top_gate_failures", "none"))
+        first_failure = top_gate_failures.split(";")[0].strip()
         table.add_row(
             str(row["model_key"]),
             f"{mean_les:.4f}",
             f"{row['mean_score']:.4f}",
             f"{publish_gate:.4f}",
+            first_failure,
             f"{row['total_cost_usd']:.4f}",
         )
     console.print(table)

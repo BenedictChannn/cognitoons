@@ -82,6 +82,7 @@ comic-tutor list-templates
 comic-tutor list-themes
 comic-tutor suggest-arm [--models ... --templates ... --themes ... --text-modes ...]
 comic-tutor bandit-stats [--limit 10]
+comic-tutor rate-run <run_id> --model <model_key> --rating 1..5 [--note "..."]
 comic-tutor generate --topic "..." [--panel-count 6] [--mode draft|publish] [--template ...] [--theme ...]
 comic-tutor edit-storyboard <run_id> [--open-editor]
 comic-tutor render <run_id> --model <model_key> [--dry-run] [--critique-mode off|warn|strict] [--image-text-mode none|minimal|full]
@@ -193,6 +194,7 @@ Global:
 - `<output_root_parent>/provider_circuit.json` (provider/model circuit-breaker state)
 - `<output_root_parent>/exploration_bandit.json` (arm pulls/reward aggregates)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
+  - leaderboard now includes LES/comprehension/rigor/publish-gate and top gate failures
 
 Live showcase artifacts (real API runs) can be kept in a separate output root,
 for example:

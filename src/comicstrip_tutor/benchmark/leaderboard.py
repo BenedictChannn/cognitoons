@@ -3,8 +3,21 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 
 from comicstrip_tutor.schemas.benchmark import BenchmarkModelResult
+
+
+def _top_reasons(reasons: Iterable[str], limit: int = 3) -> str:
+    counts: dict[str, int] = {}
+    for reason in reasons:
+        if not reason:
+            continue
+        counts[reason] = counts.get(reason, 0) + 1
+    if not counts:
+        return "none"
+    ranked = sorted(counts.items(), key=lambda item: item[1], reverse=True)[:limit]
+    return "; ".join(f"{reason} ({count})" for reason, count in ranked)
 
 
 def build_leaderboard(results: list[BenchmarkModelResult]) -> list[dict[str, float | str]]:
@@ -15,6 +28,7 @@ def build_leaderboard(results: list[BenchmarkModelResult]) -> list[dict[str, flo
     grouped_comprehension: dict[str, list[float]] = defaultdict(list)
     grouped_rigor: dict[str, list[float]] = defaultdict(list)
     grouped_publishable: dict[str, list[bool]] = defaultdict(list)
+    grouped_failure_reasons: dict[str, list[str]] = defaultdict(list)
     for result in results:
         grouped_scores[result.model_key].append(result.score)
         grouped_costs[result.model_key].append(result.cost_usd)
@@ -25,6 +39,8 @@ def build_leaderboard(results: list[BenchmarkModelResult]) -> list[dict[str, flo
         if result.technical_rigor_score is not None:
             grouped_rigor[result.model_key].append(result.technical_rigor_score)
         grouped_publishable[result.model_key].append(result.publishable)
+        if not result.publishable:
+            grouped_failure_reasons[result.model_key].extend(result.publishable_reasons)
     leaderboard: list[dict[str, float | str]] = []
     for model_key, scores in grouped_scores.items():
         les_values = grouped_les.get(model_key, [])
@@ -54,6 +70,7 @@ def build_leaderboard(results: list[BenchmarkModelResult]) -> list[dict[str, flo
                     if publishable_values
                     else 0.0
                 ),
+                "top_gate_failures": _top_reasons(grouped_failure_reasons.get(model_key, [])),
                 "total_cost_usd": round(sum(grouped_costs[model_key]), 4),
             }
         )

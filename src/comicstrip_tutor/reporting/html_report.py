@@ -34,6 +34,7 @@ _TEMPLATE = Template(
         <th>Mean Comprehension</th>
         <th>Mean Rigor</th>
         <th>Publish Gate Pass</th>
+        <th>Top Gate Failures</th>
         <th>Total Cost (USD)</th>
       </tr>
     </thead>
@@ -41,6 +42,7 @@ _TEMPLATE = Template(
       {% for row in leaderboard %}
       {% set publish_pass = row.publish_gate_pass_rate
         if row.publish_gate_pass_rate is defined else 0.0 %}
+      {% set top_failures = row.top_gate_failures if row.top_gate_failures is defined else "none" %}
       <tr>
         <td>{{ loop.index }}</td>
         <td>{{ row.model_key }}</td>
@@ -53,6 +55,7 @@ _TEMPLATE = Template(
         </td>
         <td>{{ "%.4f"|format(row.mean_rigor if row.mean_rigor is defined else 0.0) }}</td>
         <td>{{ "%.4f"|format(publish_pass) }}</td>
+        <td>{{ top_failures }}</td>
         <td>{{ "%.4f"|format(row.total_cost_usd) }}</td>
       </tr>
       {% endfor %}
