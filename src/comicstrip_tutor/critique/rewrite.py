@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import re
-
 from comicstrip_tutor.schemas.critique import CritiqueReport
 from comicstrip_tutor.schemas.storyboard import Storyboard
 
@@ -24,13 +22,6 @@ def _truncate_words(text: str, max_words: int) -> str:
     if len(words) <= max_words:
         return text
     return " ".join(words[:max_words]) + "…"
-
-
-def _critical_point_from_message(message: str) -> str | None:
-    match = re.search(r"'([^']+)'", message)
-    if match:
-        return match.group(1)
-    return None
 
 
 def apply_targeted_rewrites(
@@ -67,12 +58,8 @@ def apply_targeted_rewrites(
     )
 
     for issue in all_issues:
-        message = issue.message.lower()
-        recommendation = issue.recommendation.lower()
-
-        if issue.reviewer == "technical" and "key point missing" in message:
-            missing_point = _critical_point_from_message(issue.message)
-            target_point = missing_point or (
+        if issue.issue_code == "technical_key_point_missing":
+            target_point = str(issue.metadata.get("missing_key_point") or "") or (
                 expected_key_points[0] if expected_key_points else "core concept"
             )
             technical_panel.teaching_intent = _append_once(
@@ -86,7 +73,7 @@ def apply_targeted_rewrites(
             rewrite_notes.append(f"Injected missing key point: {target_point}.")
             continue
 
-        if "technical rigor appears low" in message or "formal concept" in recommendation:
+        if issue.issue_code == "technical_rigor_low":
             technical_panel.teaching_intent = _append_once(
                 technical_panel.teaching_intent,
                 "Formal tradeoff terms: policy, value estimate, and exploration bonus.",
@@ -94,7 +81,7 @@ def apply_targeted_rewrites(
             rewrite_notes.append("Strengthened technical rigor language.")
             continue
 
-        if issue.reviewer == "first_year" and "bridge" in message:
+        if issue.issue_code == "first_year_bridge_missing":
             technical_panel.teaching_intent = _append_once(
                 technical_panel.teaching_intent,
                 bridge_suffix,
@@ -102,23 +89,31 @@ def apply_targeted_rewrites(
             rewrite_notes.append("Added intuition-to-formal bridge sentence.")
             continue
 
-        if issue.reviewer == "beginner" and "too dense" in message:
+        if issue.issue_code in {"beginner_dialogue_too_dense", "beginner_jargon_overload"}:
             for panel in revised.panels:
                 panel.dialogue_or_caption = _truncate_words(panel.dialogue_or_caption, max_words=24)
             rewrite_notes.append("Shortened dense dialogue for beginner readability.")
             continue
 
-        if issue.reviewer == "visual" and issue.panel_number is not None:
+        if issue.issue_code in {"visual_caption_overflow", "visual_caption_too_long"}:
+            panel_number = issue.panel_number
+            if panel_number is None:
+                metadata_panel = issue.metadata.get("panel_number")
+                panel_number = int(metadata_panel) if isinstance(metadata_panel, int) else None
+            if panel_number is None:
+                continue
             panel = next(
-                (entry for entry in revised.panels if entry.panel_number == issue.panel_number),
+                (entry for entry in revised.panels if entry.panel_number == panel_number),
                 None,
             )
             if panel is not None:
                 panel.dialogue_or_caption = _truncate_words(panel.dialogue_or_caption, max_words=22)
-                rewrite_notes.append(f"Reduced caption overflow on panel {issue.panel_number}.")
+                rewrite_notes.append(f"Reduced caption overflow on panel {panel_number}.")
             continue
 
-    if misconceptions and any("misconception" in issue.message.lower() for issue in all_issues):
+    if misconceptions and any(
+        issue.issue_code == "technical_misconception_unaddressed" for issue in all_issues
+    ):
         for idx, panel in enumerate(revised.panels):
             panel.misconception_addressed = misconceptions[idx % len(misconceptions)]
         rewrite_notes.append("Mapped misconceptions explicitly across panels.")

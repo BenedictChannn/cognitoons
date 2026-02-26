@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +11,20 @@ from comicstrip_tutor.schemas.runs import CritiqueMode
 
 Severity = Literal["critical", "major", "minor"]
 Verdict = Literal["pass", "fail"]
+IssueCode = Literal[
+    "technical_key_point_missing",
+    "technical_misconception_unaddressed",
+    "technical_rigor_low",
+    "beginner_dialogue_too_dense",
+    "beginner_jargon_overload",
+    "beginner_missing_metaphor",
+    "first_year_bridge_missing",
+    "pedagogy_recap_not_final",
+    "pedagogy_panel_count_too_low",
+    "pedagogy_confusion_missing",
+    "visual_caption_overflow",
+    "visual_caption_too_long",
+]
 
 
 class CritiqueIssue(BaseModel):
@@ -18,9 +32,11 @@ class CritiqueIssue(BaseModel):
 
     reviewer: str
     severity: Severity
+    issue_code: IssueCode
     message: str
     recommendation: str
     panel_number: int | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ReviewerCritique(BaseModel):

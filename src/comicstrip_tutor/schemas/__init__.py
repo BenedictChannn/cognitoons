@@ -1,7 +1,12 @@
 """Pydantic schemas."""
 
 from comicstrip_tutor.schemas.benchmark import BenchmarkItem, BenchmarkRunResult
-from comicstrip_tutor.schemas.critique import CritiqueIssue, CritiqueReport, ReviewerCritique
+from comicstrip_tutor.schemas.critique import (
+    CritiqueIssue,
+    CritiqueReport,
+    IssueCode,
+    ReviewerCritique,
+)
 from comicstrip_tutor.schemas.evaluation import EvaluationMetricSet, EvaluationResult
 from comicstrip_tutor.schemas.planning import CharacterProfile, LearningPlan, StoryArc
 from comicstrip_tutor.schemas.runs import (
@@ -26,6 +31,7 @@ __all__ = [
     "PanelScript",
     "RenderRunManifest",
     "ReviewerCritique",
+    "IssueCode",
     "RunConfig",
     "Storyboard",
     "StoryArc",

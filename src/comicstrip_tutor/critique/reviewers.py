@@ -62,8 +62,10 @@ def technical_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revi
                 CritiqueIssue(
                     reviewer="technical",
                     severity="critical",
+                    issue_code="technical_key_point_missing",
                     message=f"Expected key point missing or too weak: '{point}'",
                     recommendation=f"Add explicit panel teaching intent for '{point}'.",
+                    metadata={"missing_key_point": point, "match_score": match},
                 )
             )
 
@@ -77,8 +79,10 @@ def technical_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revi
                 CritiqueIssue(
                     reviewer="technical",
                     severity="major",
+                    issue_code="technical_misconception_unaddressed",
                     message="Storyboard does not explicitly address listed misconceptions.",
                     recommendation="Add at least one panel that debunks a common misconception.",
+                    metadata={"misconception_count": len(context.misconceptions)},
                 )
             )
 
@@ -88,8 +92,10 @@ def technical_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revi
             CritiqueIssue(
                 reviewer="technical",
                 severity="major",
+                issue_code="technical_rigor_low",
                 message="Technical rigor appears low (few concrete technical concepts).",
                 recommendation="Add explicit tradeoff/formal concept language in teaching intents.",
+                metadata={"technical_term_hits": term_hits},
             )
         )
 
@@ -125,8 +131,10 @@ def beginner_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revie
             CritiqueIssue(
                 reviewer="beginner",
                 severity="major",
+                issue_code="beginner_dialogue_too_dense",
                 message="Dialogue is too dense for beginner reader.",
                 recommendation="Shorten caption text and split dense ideas across panels.",
+                metadata={"avg_words_per_caption": avg_words_per_caption},
             )
         )
     if jargon_hits > 3 and context.audience_level == "beginner":
@@ -134,10 +142,12 @@ def beginner_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revie
             CritiqueIssue(
                 reviewer="beginner",
                 severity="major",
+                issue_code="beginner_jargon_overload",
                 message="Too much unexplained jargon for beginner audience.",
                 recommendation=(
                     "Introduce jargon only after intuitive explanation or add quick definitions."
                 ),
+                metadata={"jargon_hits": jargon_hits},
             )
         )
 
@@ -147,10 +157,12 @@ def beginner_reviewer(storyboard: Storyboard, context: CritiqueContext) -> Revie
             CritiqueIssue(
                 reviewer="beginner",
                 severity="minor",
+                issue_code="beginner_missing_metaphor",
                 message="No metaphor anchors detected for digestibility.",
                 recommendation=(
                     "Add at least one concrete metaphor anchor in confusion/insight panels."
                 ),
+                metadata={"metaphor_panels": metaphor_panels},
             )
         )
 
@@ -180,10 +192,12 @@ def first_year_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerC
             CritiqueIssue(
                 reviewer="first_year",
                 severity="major",
+                issue_code="first_year_bridge_missing",
                 message="Insufficient bridge between intuitive and formal explanation layers.",
                 recommendation=(
                     "Add at least one panel linking metaphor intuition to formal decision rule."
                 ),
+                metadata={"has_intuition": has_intuition, "has_formal": has_formal},
             )
         )
 
@@ -206,8 +220,13 @@ def pedagogy_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerCri
             CritiqueIssue(
                 reviewer="pedagogy",
                 severity="critical",
+                issue_code="pedagogy_recap_not_final",
                 message="Recap panel is not configured as the final panel.",
                 recommendation="Ensure recap panel index is the last panel.",
+                metadata={
+                    "recap_panel": storyboard.recap_panel,
+                    "panel_count": len(storyboard.panels),
+                },
             )
         )
     if len(storyboard.panels) < 4:
@@ -215,8 +234,10 @@ def pedagogy_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerCri
             CritiqueIssue(
                 reviewer="pedagogy",
                 severity="critical",
+                issue_code="pedagogy_panel_count_too_low",
                 message="Panel count too low for proper setup/confusion/insight/recap arc.",
                 recommendation="Use at least 4 panels for pedagogical progression.",
+                metadata={"panel_count": len(storyboard.panels)},
             )
         )
     if not any("confusion" in panel.scene_description.lower() for panel in storyboard.panels):
@@ -224,6 +245,7 @@ def pedagogy_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerCri
             CritiqueIssue(
                 reviewer="pedagogy",
                 severity="major",
+                issue_code="pedagogy_confusion_missing",
                 message="No explicit confusion moment detected.",
                 recommendation="Add a panel where naive understanding fails before insight.",
             )
@@ -256,9 +278,15 @@ def visual_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerCriti
                 CritiqueIssue(
                     reviewer="visual",
                     severity="major",
+                    issue_code="visual_caption_overflow",
                     panel_number=panel.panel_number,
                     message="Caption overflow risk detected for panel.",
                     recommendation="Reduce caption length or split into two panels.",
+                    metadata={
+                        "caption_length": len(panel.dialogue_or_caption),
+                        "max_chars_per_line": 44,
+                        "max_lines": 4,
+                    },
                 )
             )
         if len(panel.dialogue_or_caption) > 280:
@@ -266,9 +294,11 @@ def visual_reviewer(storyboard: Storyboard, _: CritiqueContext) -> ReviewerCriti
                 CritiqueIssue(
                     reviewer="visual",
                     severity="major",
+                    issue_code="visual_caption_too_long",
                     panel_number=panel.panel_number,
                     message="Caption too long for readable comic panel.",
                     recommendation="Keep panel dialogue concise and focused.",
+                    metadata={"caption_length": len(panel.dialogue_or_caption)},
                 )
             )
     score = max(0.0, 1.0 - (0.1 * len(issues)))
