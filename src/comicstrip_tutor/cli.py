@@ -14,7 +14,7 @@ from comicstrip_tutor.benchmark.runner import run_benchmark
 from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.exploration.arms import build_arm_id
 from comicstrip_tutor.exploration.bandit import ExplorationBanditStore
-from comicstrip_tutor.image_models.registry import list_models
+from comicstrip_tutor.image_models.registry import list_model_descriptors
 from comicstrip_tutor.logging_utils import configure_logging
 from comicstrip_tutor.pipeline.compare_pipeline import compare_models_on_storyboard
 from comicstrip_tutor.pipeline.planner_pipeline import run_planning_pipeline
@@ -27,6 +27,7 @@ from comicstrip_tutor.pipeline.storyboard_editor import (
     validate_storyboard_file,
 )
 from comicstrip_tutor.presets import get_preset, list_presets
+from comicstrip_tutor.probes.model_probe import run_model_probe
 from comicstrip_tutor.reporting.quality_report import generate_quality_report_from_run
 from comicstrip_tutor.reporting.trend_report import write_trend_report
 from comicstrip_tutor.schemas.runs import RunConfig
@@ -64,9 +65,64 @@ def list_models_command() -> None:
     """List supported image models."""
     table = Table(title="Supported Image Models")
     table.add_column("Model")
-    for model in list_models():
-        table.add_row(model)
+    table.add_column("Provider")
+    table.add_column("Tier")
+    table.add_column("Status")
+    table.add_column("Fallback")
+    for model in list_model_descriptors():
+        table.add_row(
+            model.key,
+            model.provider,
+            model.tier,
+            "experimental" if model.experimental else "supported",
+            model.fallback_model or "-",
+        )
     console.print(table)
+
+
+@app.command("probe-model")
+def probe_model(
+    model: str = typer.Option(..., "--model"),
+    prompt: str = typer.Option(
+        "Explain lock-free stack ABA issue as a clear visual metaphor.", "--prompt"
+    ),
+    repetitions: int = typer.Option(5, "--repetitions", min=1, max=20),
+    width: int = typer.Option(512, "--width", min=128, max=2048),
+    height: int = typer.Option(512, "--height", min=128, max=2048),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+) -> None:
+    """Run repeated single-panel probes for model stability diagnostics."""
+    result = run_model_probe(
+        model_key=model,
+        prompt=prompt,
+        repetitions=repetitions,
+        width=width,
+        height=height,
+        dry_run=dry_run,
+        app_config=_app_config(),
+    )
+    table = Table(title=f"Probe {result.probe_id}")
+    table.add_column("Attempt")
+    table.add_column("Success")
+    table.add_column("Latency (s)")
+    table.add_column("Error Type")
+    table.add_column("Inline Data Parts")
+    for attempt in result.attempts:
+        diagnostics = attempt.provider_usage.get("response_diagnostics", {})
+        inline_data_parts = diagnostics.get("inline_data_part_count")
+        table.add_row(
+            str(attempt.attempt),
+            "yes" if attempt.success else "no",
+            f"{attempt.latency_s:.3f}",
+            attempt.error_type or "-",
+            str(inline_data_parts) if inline_data_parts is not None else "-",
+        )
+    console.print(table)
+    console.print(
+        f"[green]Success rate:[/green] {result.success_rate:.2%} "
+        f"({result.success_count}/{result.repetitions})"
+    )
+    console.print(f"[green]Probe artifact:[/green] {_app_config().output_root / result.probe_id}")
 
 
 @app.command("list-templates")

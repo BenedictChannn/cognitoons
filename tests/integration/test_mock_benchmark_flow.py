@@ -14,6 +14,8 @@ def test_mock_benchmark_flow(tmp_path: Path) -> None:
         provider_backoff_s=0.2,
         circuit_fail_threshold=2,
         circuit_cooldown_s=30,
+        enable_experimental_models=False,
+        gemini_text_image_fallback=False,
     )
     dataset = Path("benchmark/comic_benchmark_v1.json")
     result = run_benchmark(

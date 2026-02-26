@@ -9,6 +9,7 @@ from comicstrip_tutor.schemas.critique import (
 )
 from comicstrip_tutor.schemas.evaluation import EvaluationMetricSet, EvaluationResult
 from comicstrip_tutor.schemas.planning import CharacterProfile, LearningPlan, StoryArc
+from comicstrip_tutor.schemas.probe import ModelProbeResult, ProbeAttempt
 from comicstrip_tutor.schemas.runs import (
     CompareRunSummary,
     PanelRenderRecord,
@@ -27,8 +28,10 @@ __all__ = [
     "EvaluationMetricSet",
     "EvaluationResult",
     "LearningPlan",
+    "ModelProbeResult",
     "PanelRenderRecord",
     "PanelScript",
+    "ProbeAttempt",
     "RenderRunManifest",
     "ReviewerCritique",
     "IssueCode",

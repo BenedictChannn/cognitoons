@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import pytest
@@ -60,3 +61,25 @@ def test_run_with_reliability_opens_circuit_after_threshold(tmp_path: Path) -> N
             circuit_store=store,
             operation=lambda: "ok",
         )
+
+
+def test_run_with_reliability_timeout_returns_promptly(tmp_path: Path) -> None:
+    store = CircuitBreakerStore(tmp_path / "circuit.json")
+    policy = ReliabilityPolicy(
+        timeout_s=0.05,
+        max_retries=0,
+        backoff_s=0,
+        circuit_fail_threshold=3,
+        circuit_cooldown_s=10,
+    )
+
+    started = time.perf_counter()
+    with pytest.raises(RuntimeError, match="timed out"):
+        run_with_reliability(
+            key="provider:model",
+            policy=policy,
+            circuit_store=store,
+            operation=lambda: time.sleep(2),
+        )
+    elapsed = time.perf_counter() - started
+    assert elapsed < 0.5

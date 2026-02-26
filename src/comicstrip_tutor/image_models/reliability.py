@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FutureTimeoutError
 from dataclasses import dataclass
 from pathlib import Path
+from threading import Thread
 
 from comicstrip_tutor.storage.cache import JsonCache
 
@@ -88,18 +87,35 @@ def run_with_reliability[T](
     if not circuit_store.can_attempt(key):
         raise CircuitOpenError(f"Circuit open for '{key}'. Cooldown in effect.")
 
+    def _run_with_timeout() -> T:
+        result_holder: list[T] = []
+        error_holder: list[Exception] = []
+
+        def _target() -> None:
+            try:
+                result_holder.append(operation())
+            except Exception as exc:  # noqa: BLE001
+                error_holder.append(exc)
+
+        worker = Thread(target=_target, daemon=True)
+        worker.start()
+        worker.join(timeout=policy.timeout_s)
+        if worker.is_alive():
+            raise TimeoutError(f"Provider call timed out after {policy.timeout_s}s for '{key}'.")
+        if error_holder:
+            raise error_holder[0]
+        if not result_holder:
+            raise RuntimeError(f"Provider call returned no result for '{key}'.")
+        return result_holder[0]
+
     last_error: Exception | None = None
     for attempt in range(policy.max_retries + 1):
         try:
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(operation)
-                result = future.result(timeout=policy.timeout_s)
+            result = _run_with_timeout()
             circuit_store.record_success(key)
             return result
-        except FutureTimeoutError:
-            last_error = TimeoutError(
-                f"Provider call timed out after {policy.timeout_s}s for '{key}'."
-            )
+        except TimeoutError as exc:
+            last_error = exc
             circuit_store.record_failure(key, str(last_error), policy)
         except Exception as exc:  # noqa: BLE001
             last_error = exc

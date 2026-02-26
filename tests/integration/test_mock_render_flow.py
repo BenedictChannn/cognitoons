@@ -17,6 +17,8 @@ def test_mock_render_flow(tmp_path: Path) -> None:
         provider_backoff_s=0.2,
         circuit_fail_threshold=2,
         circuit_cooldown_s=30,
+        enable_experimental_models=False,
+        gemini_text_image_fallback=False,
     )
     store = ArtifactStore(tmp_path)
     run_config = RunConfig(

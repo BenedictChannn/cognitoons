@@ -12,7 +12,11 @@ from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.evaluation.scorer import score_render_run
 from comicstrip_tutor.image_models.base import ImageModel, PanelImageRequest, PanelImageResult
-from comicstrip_tutor.image_models.registry import create_model
+from comicstrip_tutor.image_models.registry import (
+    create_model,
+    fallback_model_for,
+    provider_for,
+)
 from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.pipeline.error_taxonomy import classify_render_exception
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
@@ -76,7 +80,9 @@ def render_storyboard(
     paths = store.open_run(run_id)
     storyboard = _STORYBOARD_ADAPTER.validate_python(read_json(paths.root / "storyboard.json"))
     run_config = _RUN_CONFIG_ADAPTER.validate_python(read_json(paths.root / "run_config.json"))
-    model = create_model(model_key, app_config)
+    model: ImageModel | None = None
+    model_provider = provider_for(model_key)
+    fallback_model_key = fallback_model_for(model_key) if allow_model_fallback else None
     fallback_model: ImageModel | None = None
     width, height = _size_for_mode(mode)
     panel_cache = JsonCache(app_config.output_root.parent / "panel_cache.json")
@@ -140,6 +146,8 @@ def render_storyboard(
         output_path: Path, panel_number: int, prompt: str
     ) -> PanelImageResult:
         nonlocal fallback_model
+        if model is None:
+            raise RuntimeError(f"Model not initialized for key: {model_key}")
         request = PanelImageRequest(
             panel_number=panel_number,
             prompt=prompt,
@@ -152,20 +160,18 @@ def render_storyboard(
         try:
             return model.generate_panel_image(request)
         except Exception as exc:  # noqa: BLE001
-            if not (allow_model_fallback and model_key == "gemini-3-pro-image-preview"):
+            if fallback_model_key is None:
                 raise
             if fallback_model is None:
-                fallback_model = create_model("gemini-2.5-flash-image", app_config)
+                fallback_model = create_model(fallback_model_key, app_config)
             fallback_result = fallback_model.generate_panel_image(request)
             fallback_usage = {
                 **fallback_result.provider_usage,
                 "fallback_from_model": model_key,
-                "fallback_to_model": "gemini-2.5-flash-image",
+                "fallback_to_model": fallback_model_key,
                 "fallback_reason": str(exc),
             }
-            manifest_notes.append(
-                "Fallback used: gemini-3-pro-image-preview -> gemini-2.5-flash-image"
-            )
+            manifest_notes.append(f"Fallback used: {model_key} -> {fallback_model_key}")
             return PanelImageResult(
                 image_path=fallback_result.image_path,
                 provider_usage=fallback_usage,
@@ -179,6 +185,8 @@ def render_storyboard(
     evaluation = None
 
     try:
+        model = create_model(model_key, app_config)
+        model_provider = model.provider
         for panel in storyboard.panels:
             prompt = build_panel_prompt(
                 storyboard,
@@ -270,7 +278,7 @@ def render_storyboard(
     manifest = RenderRunManifest(
         run_id=run_id,
         model_key=model_key,
-        provider=model.provider,
+        provider=model_provider,
         mode=mode,  # type: ignore[arg-type]
         storyboard_hash=storyboard_hash,
         prompt_hash=prompt_hash,

@@ -8,6 +8,7 @@ MODEL_ESTIMATED_COST_USD: dict[str, float] = {
     "gpt-image-1.5": 0.08,
     "gemini-2.5-flash-image": 0.012,
     "gemini-3-pro-image-preview": 0.07,
+    "gemini-3.1-flash-image-preview": 0.025,
 }
 
 

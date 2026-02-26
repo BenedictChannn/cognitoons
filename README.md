@@ -42,6 +42,7 @@ OpenAI:
 Gemini:
 - `gemini-2.5-flash-image`
 - `gemini-3-pro-image-preview`
+- `gemini-3.1-flash-image-preview` (experimental; enable explicitly)
 
 ---
 
@@ -64,6 +65,8 @@ Set keys (optional for live API runs):
 OPENAI_API_KEY=...
 GEMINI_API_KEY=...
 COMIC_TUTOR_OUTPUT_ROOT=runs/experiments
+COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS=false
+COMIC_TUTOR_GEMINI_TEXT_IMAGE_FALLBACK=false
 ```
 
 Run CLI:
@@ -78,6 +81,7 @@ Run CLI:
 
 ```bash
 comic-tutor list-models
+comic-tutor probe-model --model <model_key> [--repetitions 5]
 comic-tutor list-templates
 comic-tutor list-themes
 comic-tutor list-presets
@@ -102,6 +106,16 @@ Preset quickstart:
 ```bash
 comic-tutor list-presets
 comic-tutor generate-preset --preset publish-strict --topic "Explain UCT in MCTS"
+```
+
+Nano Banana live probes:
+
+```bash
+COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS=true \
+comic-tutor probe-model --model gemini-3-pro-image-preview --repetitions 5
+
+COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS=true \
+comic-tutor probe-model --model gemini-3.1-flash-image-preview --repetitions 5
 ```
 
 ---

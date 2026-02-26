@@ -23,5 +23,8 @@ def classify_render_exception(exc: Exception) -> tuple[str, str]:
     if isinstance(exc, FileNotFoundError):
         return ("artifact_not_found", str(exc))
     if isinstance(exc, ValueError):
-        return ("invalid_input", str(exc))
+        message = str(exc)
+        if "experimental" in message.lower():
+            return ("experimental_model_disabled", message)
+        return ("invalid_input", message)
     return ("unknown_failure", str(exc))

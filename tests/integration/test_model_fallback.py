@@ -40,6 +40,8 @@ def test_render_uses_fallback_for_gemini_3(tmp_path: Path, monkeypatch) -> None:
         provider_backoff_s=0,
         circuit_fail_threshold=1,
         circuit_cooldown_s=10,
+        enable_experimental_models=False,
+        gemini_text_image_fallback=False,
     )
     store = ArtifactStore(app_config.output_root)
     run_planning_pipeline(
