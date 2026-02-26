@@ -14,6 +14,12 @@ from comicstrip_tutor.schemas.critique import CritiqueIssue, CritiqueReport, Rev
 from comicstrip_tutor.schemas.runs import CritiqueMode
 from comicstrip_tutor.schemas.storyboard import Storyboard
 
+_QUALITY_CRITICAL_REWRITE_CODES = {
+    "technical_key_point_missing",
+    "technical_rigor_low",
+    "first_year_bridge_missing",
+}
+
 
 def _collect_actions(issues: list[CritiqueIssue]) -> list[str]:
     actions: list[str] = []
@@ -87,4 +93,11 @@ def should_block_render(critique_report: CritiqueReport) -> bool:
 
 def needs_rewrite(critique_report: CritiqueReport) -> bool:
     """Determine if report requires rewrite cycle."""
-    return critique_report.blocking_issue_count > 0 or critique_report.major_issue_count > 2
+    if critique_report.blocking_issue_count > 0 or critique_report.major_issue_count > 2:
+        return True
+    issue_codes = {
+        issue.issue_code
+        for reviewer in critique_report.reviewer_reports
+        for issue in reviewer.issues
+    }
+    return bool(issue_codes & _QUALITY_CRITICAL_REWRITE_CODES)

@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from comicstrip_tutor.critique.orchestrator import run_storyboard_critique, should_block_render
+from comicstrip_tutor.critique.orchestrator import (
+    needs_rewrite,
+    run_storyboard_critique,
+    should_block_render,
+)
 from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.schemas.storyboard import PanelScript, Storyboard
 
@@ -99,3 +103,26 @@ def test_critique_rewrite_loop_applies_targeted_fixes(tmp_path: Path) -> None:
     assert rewrite_count >= 1
     assert rewritten.recap_panel == len(rewritten.panels)
     assert not should_block_render(report)
+
+
+def test_needs_rewrite_for_single_critical_quality_code() -> None:
+    weak = _sample_storyboard()
+    for panel in weak.panels:
+        panel.scene_description = "simple scene"
+        panel.dialogue_or_caption = "simple words only"
+        panel.teaching_intent = "Explain idea simply."
+    report = run_storyboard_critique(
+        run_id="needs-rewrite",
+        stage="post_planning",
+        critique_mode="warn",
+        storyboard=weak,
+        expected_key_points=["exploration vs exploitation"],
+        misconceptions=[],
+        audience_level="beginner",
+    )
+    assert any(
+        issue.issue_code == "technical_rigor_low"
+        for reviewer in report.reviewer_reports
+        for issue in reviewer.issues
+    )
+    assert needs_rewrite(report)

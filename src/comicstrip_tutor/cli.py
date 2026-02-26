@@ -402,7 +402,7 @@ def benchmark(
     dataset: Path = typer.Option(Path("benchmark/comic_benchmark_v1.json"), "--dataset"),
     limit: int = typer.Option(10, "--limit", min=1),
     mode: str = typer.Option("draft", "--mode"),
-    dry_run: bool = typer.Option(True, "--dry-run"),
+    dry_run: bool = typer.Option(True, "--dry-run/--live"),
     models: str = typer.Option("cheap-first", "--models"),
 ) -> None:
     """Run benchmark sweep and leaderboard report generation."""

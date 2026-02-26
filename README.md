@@ -91,7 +91,7 @@ comic-tutor render <run_id> --model <model_key> [--dry-run] [--critique-mode off
 comic-tutor quality-report <run_id> --model <model_key>
 comic-tutor reroll-panel <run_id> --model <model_key> --panel 3 --metaphor "..."
 comic-tutor compare <run_id> --model-a <A> --model-b <B> [--dry-run]
-comic-tutor benchmark --dataset benchmark/comic_benchmark_v1.json --limit 10 [--dry-run]
+comic-tutor benchmark --dataset benchmark/comic_benchmark_v1.json --limit 10 [--dry-run|--live]
 comic-tutor report --benchmark-run <benchmark_id>
 comic-tutor build-log --intent create|update --topic "..." --title "..."
 ```

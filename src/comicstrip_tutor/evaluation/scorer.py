@@ -45,6 +45,28 @@ def _learning_effectiveness(
     return round(value, 4)
 
 
+def _technical_rigor_from_critique(critique_report: CritiqueReport | None) -> float | None:
+    if critique_report is None:
+        return None
+    technical = next(
+        (report for report in critique_report.reviewer_reports if report.reviewer == "technical"),
+        None,
+    )
+    if technical is None:
+        return None
+    score = 1.0
+    for issue in technical.issues:
+        if issue.issue_code == "technical_key_point_missing":
+            score -= 0.2
+        elif issue.issue_code == "technical_rigor_low":
+            score -= 0.1
+        elif issue.issue_code == "technical_misconception_unaddressed":
+            score -= 0.03
+    if any(issue.severity == "critical" for issue in technical.issues):
+        score = min(score, 0.74)
+    return round(max(0.0, score), 4)
+
+
 def _publishability(
     *,
     checks: dict[str, bool],
@@ -92,7 +114,7 @@ def score_render_run(
     comprehension_score = None
     if beginner_score is not None and first_year_score is not None:
         comprehension_score = round((beginner_score + first_year_score) / 2.0, 4)
-    technical_rigor_score = _reviewer_score(critique_report, "technical")
+    technical_rigor_score = _technical_rigor_from_critique(critique_report)
     learning_effectiveness_score = _learning_effectiveness(
         comprehension_score=comprehension_score,
         technical_rigor_score=technical_rigor_score,
