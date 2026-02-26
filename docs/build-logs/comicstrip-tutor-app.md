@@ -302,3 +302,29 @@
 **References**
 - commits 84168d9, 4208d52, d2beb11
 - live run: live-lockfree-v4
+
+### 2026-02-26 - Add render error taxonomy and completion-state guarantees
+
+**Summary**
+- Render pipeline now classifies failures into stable error taxonomy keys (timeout, circuit open, schema failure, etc.).
+- Render manifests now persist completion status (success/partial_success/failure) with error_type and error_message for diagnostics.
+- Failure paths now still write manifest and registry failure events, improving post-mortem traceability.
+
+**Details**
+- Added error classification helper module and tests for taxonomy behavior.
+- Added integration test proving manifest persistence on provider timeout failure.
+
+**Files touched**
+- `src/comicstrip_tutor/pipeline/error_taxonomy.py`
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+- `src/comicstrip_tutor/schemas/runs.py`
+- `tests/integration/test_render_failure_manifest.py`
+
+**Impact**
+- Improves reliability observability and fulfills run-state guarantee requirement with actionable diagnostics.
+
+**Follow-ups**
+- Add run-level dashboard/report section summarizing failure taxonomy distribution over time.
+
+**References**
+- commit d9df218
