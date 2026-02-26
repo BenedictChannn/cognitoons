@@ -28,6 +28,8 @@ from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.build_log import BuildLogEntry, append_build_log, ensure_topic_log
 from comicstrip_tutor.storage.io_utils import read_json
+from comicstrip_tutor.styles.templates import list_templates
+from comicstrip_tutor.styles.themes import list_themes
 from comicstrip_tutor.utils.time_utils import utc_timestamp
 
 app = typer.Typer(help="ComicStrip Tutor: storyboard-first technical comics")
@@ -55,6 +57,30 @@ def list_models_command() -> None:
     table.add_column("Model")
     for model in list_models():
         table.add_row(model)
+    console.print(table)
+
+
+@app.command("list-templates")
+def list_templates_command() -> None:
+    """List pedagogy templates."""
+    table = Table(title="Pedagogy Templates")
+    table.add_column("Template ID")
+    table.add_column("Title")
+    table.add_column("Description")
+    for template in list_templates():
+        table.add_row(template.template_id, template.title, template.description)
+    console.print(table)
+
+
+@app.command("list-themes")
+def list_themes_command() -> None:
+    """List visual theme packs."""
+    table = Table(title="Theme Packs")
+    table.add_column("Theme ID")
+    table.add_column("Title")
+    table.add_column("Description")
+    for theme in list_themes():
+        table.add_row(theme.theme_id, theme.title, theme.description)
     console.print(table)
 
 

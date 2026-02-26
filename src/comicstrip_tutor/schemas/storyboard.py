@@ -22,6 +22,8 @@ class Storyboard(BaseModel):
 
     topic: str
     audience_level: str = "beginner"
+    template: str = "intuition-to-formalism"
+    theme: str = "clean-whiteboard"
     story_title: str
     character_style_guide: str
     recurring_characters: list[str] = Field(min_length=2)

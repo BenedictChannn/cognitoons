@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from comicstrip_tutor.schemas.planning import CharacterProfile, LearningPlan, StoryArc
 from comicstrip_tutor.schemas.storyboard import PanelScript, Storyboard
+from comicstrip_tutor.styles.compiler import compile_style_guide
 
 
 @dataclass(slots=True)
@@ -74,35 +75,22 @@ def build_plan(
             visual_traits=["round glasses", "green jacket", "marker pen"],
         ),
     ]
-    theme_style_guides = {
-        "clean-whiteboard": (
-            "Clean white background, consistent character design, high contrast, uncluttered."
-        ),
-        "sci-fi-lab": (
-            "Futuristic lab setting, cool neon accents, clear silhouettes, cinematic lighting."
-        ),
-        "playful-manga-lite": (
-            "Expressive manga-lite faces, dynamic framing, playful but readable composition."
-        ),
-        "textbook-modern": (
-            "Educational textbook-style diagrams blended with character scenes, crisp lines."
-        ),
-        "retro-terminal": (
-            "Retro terminal motifs, grid overlays, monochrome accents with focused highlights."
-        ),
-    }
-    character_style_guide = theme_style_guides.get(
-        theme,
-        "Clean technical comic style with consistent characters and high readability.",
+    style_guide = compile_style_guide(
+        template_id=template,
+        theme_id=theme,
+        audience_level=audience_level,
     )
+    beat_hints = style_guide.template.beat_hints
     panels: list[PanelScript] = []
     for idx in range(panel_count):
-        if idx == 0:
-            arc_step = "setup"
-        elif idx == panel_count - 1:
+        if idx == panel_count - 1:
             arc_step = "recap"
-        elif idx <= max(1, panel_count // 3):
-            arc_step = "confusion"
+        elif idx == 0:
+            arc_step = beat_hints[0]
+        elif idx == 1:
+            arc_step = beat_hints[1]
+        elif idx == 2:
+            arc_step = beat_hints[2]
         else:
             arc_step = "insight"
         point = key_points[idx % len(key_points)]
@@ -110,7 +98,8 @@ def build_plan(
             PanelScript(
                 panel_number=idx + 1,
                 scene_description=(
-                    f"{arc_step.title()} scene ({template}): Ada and Turing discuss {point}."
+                    f"{arc_step.title()} scene ({style_guide.template.title}): "
+                    f"Ada and Turing discuss {point}."
                 ),
                 dialogue_or_caption=(
                     f'Ada: "I thought {subject} was simpler." '
@@ -129,8 +118,10 @@ def build_plan(
     storyboard = Storyboard(
         topic=subject,
         audience_level=audience_level,
+        template=style_guide.template.template_id,
+        theme=style_guide.theme.theme_id,
         story_title=f"{subject}: A Visual Walkthrough ({template}, {theme})",
-        character_style_guide=character_style_guide,
+        character_style_guide=style_guide.style_text,
         recurring_characters=[character.name for character in characters],
         panels=panels,
         recap_panel=panel_count,

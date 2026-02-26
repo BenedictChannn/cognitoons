@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
+
 from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.llm.text_planner import PlanningBundle, build_plan
 from comicstrip_tutor.pipeline.critique_pipeline import run_and_save_critique
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.io_utils import write_json
+from comicstrip_tutor.styles.compiler import compile_style_guide
 from comicstrip_tutor.utils.hashing import sha256_text
 
 
@@ -31,6 +34,21 @@ def run_planning_pipeline(
     write_json(
         paths.planning_dir / "characters.json",
         [character.model_dump() for character in bundle.characters],
+    )
+    compiled_style = compile_style_guide(
+        template_id=run_config.template,
+        theme_id=run_config.theme,
+        audience_level=run_config.audience_level,
+    )
+    write_json(
+        paths.planning_dir / "style_guide.json",
+        {
+            "template": asdict(compiled_style.template),
+            "theme": asdict(compiled_style.theme),
+            "style_text": compiled_style.style_text,
+            "visual_instruction": compiled_style.visual_instruction,
+            "pedagogy_instruction": compiled_style.pedagogy_instruction,
+        },
     )
     write_json(paths.root / "storyboard.json", bundle.storyboard.model_dump())
     critique_report = run_and_save_critique(
