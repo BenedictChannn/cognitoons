@@ -1,0 +1,29 @@
+{
+  "benchmark_id": "benchmark-20260226T092918Z",
+  "model_results": [
+    {
+      "item_id": "mcts_uct_beginner",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.972,
+      "learning_effectiveness_score": 0.972,
+      "comprehension_score": 0.95,
+      "technical_rigor_score": 0.97,
+      "publishable": true,
+      "publishable_reasons": [],
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260226t092918z-mcts_uct_beginner-gpt-image-1-mini"
+    }
+  ],
+  "leaderboard": [
+    {
+      "model_key": "gpt-image-1-mini",
+      "mean_score": 0.972,
+      "mean_les": 0.972,
+      "mean_comprehension": 0.95,
+      "mean_rigor": 0.97,
+      "publish_gate_pass_rate": 1.0,
+      "top_gate_failures": "none",
+      "total_cost_usd": 0.06
+    }
+  ]
+}

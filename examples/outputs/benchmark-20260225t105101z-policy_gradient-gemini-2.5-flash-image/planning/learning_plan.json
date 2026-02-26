@@ -1,0 +1,14 @@
+{
+  "topic": "Policy gradient intuition for engineers",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind Policy gradient intuition for engineers",
+    "Explain Policy gradient intuition for engineers with a simple metaphor",
+    "Apply Policy gradient intuition for engineers to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Policy gradient intuition for engineers has only one correct strategy",
+    "Policy gradient intuition for engineers is purely theoretical and not practical"
+  ],
+  "recap_message": "Policy gradient intuition for engineers: balance intuition, structure, and tradeoffs."
+}

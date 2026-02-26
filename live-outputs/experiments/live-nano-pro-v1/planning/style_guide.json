@@ -1,0 +1,29 @@
+{
+  "template": {
+    "template_id": "intuition-to-formalism",
+    "title": "Intuition to Formalism",
+    "description": "Build intuitive metaphor first, then connect to formal rule.",
+    "beat_hints": [
+      "intuition",
+      "confusion",
+      "formal-rule",
+      "recap"
+    ],
+    "instruction": "Translate intuitive framing into technical terms by panel 3, and recap the mapping."
+  },
+  "theme": {
+    "theme_id": "clean-whiteboard",
+    "title": "Clean Whiteboard",
+    "description": "Minimal educational visual style with high readability.",
+    "visual_style": "clean white background, crisp lines, clear spacing",
+    "tone": "calm and explanatory",
+    "palette": [
+      "white",
+      "charcoal",
+      "blue"
+    ]
+  },
+  "style_text": "Theme Clean Whiteboard: clean white background, crisp lines, clear spacing. Palette: white, charcoal, blue. Tone: calm and explanatory. Audience level: beginner. Template Intuition to Formalism: Translate intuitive framing into technical terms by panel 3, and recap the mapping. Beats: intuition, confusion, formal-rule, recap.",
+  "visual_instruction": "Theme Clean Whiteboard: clean white background, crisp lines, clear spacing. Palette: white, charcoal, blue.",
+  "pedagogy_instruction": "Template Intuition to Formalism: Translate intuitive framing into technical terms by panel 3, and recap the mapping. Beats: intuition, confusion, formal-rule, recap."
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Paxos consensus in distributed systems",
+  "audience_level": "advanced",
+  "objectives": [
+    "Understand the intuition behind Paxos consensus in distributed systems",
+    "Explain Paxos consensus in distributed systems with a simple metaphor",
+    "Apply Paxos consensus in distributed systems to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Paxos consensus in distributed systems has only one correct strategy",
+    "Paxos consensus in distributed systems is purely theoretical and not practical"
+  ],
+  "recap_message": "Paxos consensus in distributed systems: balance intuition, structure, and tradeoffs."
+}

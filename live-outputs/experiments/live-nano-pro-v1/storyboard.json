@@ -1,0 +1,51 @@
+{
+  "topic": "Explain lock-free stack ABA problem to first-year CS student",
+  "audience_level": "beginner",
+  "template": "intuition-to-formalism",
+  "theme": "clean-whiteboard",
+  "story_title": "Explain lock-free stack ABA problem to first-year CS student: A Visual Walkthrough (intuition-to-formalism, clean-whiteboard)",
+  "character_style_guide": "Theme Clean Whiteboard: clean white background, crisp lines, clear spacing. Palette: white, charcoal, blue. Tone: calm and explanatory. Audience level: beginner. Template Intuition to Formalism: Translate intuitive framing into technical terms by panel 3, and recap the mapping. Beats: intuition, confusion, formal-rule, recap.",
+  "recurring_characters": [
+    "Ada",
+    "Turing"
+  ],
+  "panels": [
+    {
+      "panel_number": 1,
+      "scene_description": "Intuition scene (Intuition to Formalism): Ada and Turing discuss Explain lock-free stack ABA problem to first-year CS student.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack ABA problem to first-year CS student was simpler.\" Turing: \"Let’s unpack Explain lock-free stack ABA problem…",
+      "teaching_intent": "Teach: Explain lock-free stack ABA problem to first-year CS student",
+      "misconception_addressed": "Explain lock-free stack ABA problem to first-year CS student has only one correct strategy",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack ABA problem to first-year CS student.",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 2,
+      "scene_description": "Confusion scene (Intuition to Formalism): Ada and Turing discuss Explain lock-free stack ABA problem to first-year CS student.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack ABA problem to first-year CS student was simpler.\" Turing: \"Let’s unpack Explain lock-free stack ABA problem…",
+      "teaching_intent": "Teach: Explain lock-free stack ABA problem to first-year CS student",
+      "misconception_addressed": "Explain lock-free stack ABA problem to first-year CS student is purely theoretical and not practical",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack ABA problem to first-year CS student.",
+      "metaphor_anchor": "Exploring hallways with a map and scorecard"
+    },
+    {
+      "panel_number": 3,
+      "scene_description": "Formal-Rule scene (Intuition to Formalism): Ada and Turing discuss Explain lock-free stack ABA problem to first-year CS student.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack ABA problem to first-year CS student was simpler.\" Turing: \"Let’s unpack Explain lock-free stack ABA problem…",
+      "teaching_intent": "Teach: Explain lock-free stack ABA problem to first-year CS student Formal tradeoff terms: policy, value estimate, and exploration bonus. Bridge intuition to formalism: choose action maximizing value estimate plus uncertainty bonus.",
+      "misconception_addressed": "Explain lock-free stack ABA problem to first-year CS student has only one correct strategy",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack ABA problem to first-year CS student.",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 4,
+      "scene_description": "Recap scene (Intuition to Formalism): Ada and Turing discuss Explain lock-free stack ABA problem to first-year CS student.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack ABA problem to first-year CS student was simpler.\" Turing: \"Let’s unpack Explain lock-free stack ABA problem…",
+      "teaching_intent": "Teach: Explain lock-free stack ABA problem to first-year CS student",
+      "misconception_addressed": "Explain lock-free stack ABA problem to first-year CS student is purely theoretical and not practical",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack ABA problem to first-year CS student. Final recap includes why naive strategy fails and when to apply the formal rule.",
+      "metaphor_anchor": null
+    }
+  ],
+  "recap_panel": 4
+}

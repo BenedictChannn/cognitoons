@@ -1,0 +1,14 @@
+{
+  "topic": "Raft election and log replication basics",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind Raft election and log replication basics",
+    "Explain Raft election and log replication basics with a simple metaphor",
+    "Apply Raft election and log replication basics to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Raft election and log replication basics has only one correct strategy",
+    "Raft election and log replication basics is purely theoretical and not practical"
+  ],
+  "recap_message": "Raft election and log replication basics: balance intuition, structure, and tradeoffs."
+}

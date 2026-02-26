@@ -1,0 +1,256 @@
+"""Gemini image adapter."""
+
+from __future__ import annotations
+
+import base64
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, cast
+
+from google import genai
+from google.genai import types as genai_types
+
+from comicstrip_tutor.image_models.base import (
+    ImageModel,
+    ModelTier,
+    PanelImageRequest,
+    PanelImageResult,
+)
+from comicstrip_tutor.image_models.mock_render import create_placeholder_image
+from comicstrip_tutor.image_models.pricing import estimate_cost
+from comicstrip_tutor.image_models.reliability import (
+    CircuitBreakerStore,
+    ReliabilityPolicy,
+    run_with_reliability,
+)
+
+
+@dataclass(slots=True, frozen=True)
+class GeminiGenerationStrategy:
+    """Model-specific generation strategy controls."""
+
+    primary_modalities: tuple[genai_types.Modality, ...]
+    fallback_modalities: tuple[genai_types.Modality, ...] | None = None
+
+
+_DEFAULT_GENERATION_STRATEGY = GeminiGenerationStrategy(
+    primary_modalities=(genai_types.Modality.IMAGE,),
+)
+
+_GENERATION_STRATEGIES: dict[str, GeminiGenerationStrategy] = {
+    "gemini-2.5-flash-image": GeminiGenerationStrategy(
+        primary_modalities=(genai_types.Modality.IMAGE,),
+    ),
+    "gemini-3-pro-image-preview": GeminiGenerationStrategy(
+        primary_modalities=(genai_types.Modality.IMAGE,),
+        fallback_modalities=(genai_types.Modality.TEXT, genai_types.Modality.IMAGE),
+    ),
+    "gemini-3.1-flash-image-preview": GeminiGenerationStrategy(
+        primary_modalities=(genai_types.Modality.IMAGE,),
+    ),
+}
+
+
+class GeminiImageModel(ImageModel):
+    """Gemini image model wrapper."""
+
+    def __init__(
+        self,
+        model_id: str,
+        tier: ModelTier,
+        api_key: str | None,
+        reliability_policy: ReliabilityPolicy,
+        circuit_store: CircuitBreakerStore,
+        allow_text_image_fallback: bool,
+    ):
+        self.model_id = model_id
+        self.provider = "google"
+        self.tier = tier
+        self.supports_reference_images = False
+        self._client = genai.Client(api_key=api_key) if api_key else None
+        self._reliability_policy = reliability_policy
+        self._circuit_store = circuit_store
+        self._allow_text_image_fallback = allow_text_image_fallback
+
+    def _usage_dict(self, response: Any) -> dict[str, Any]:
+        usage_metadata = getattr(response, "usage_metadata", None)
+        if not usage_metadata:
+            return {}
+        if hasattr(usage_metadata, "model_dump"):
+            return cast(dict[str, Any], usage_metadata.model_dump())
+        if isinstance(usage_metadata, dict):
+            return usage_metadata
+        return {"usage_metadata": str(usage_metadata)}
+
+    def _response_diagnostics(self, response: Any) -> dict[str, Any]:
+        candidates = getattr(response, "candidates", None) or []
+        candidate_summaries: list[dict[str, Any]] = []
+        inline_data_parts = 0
+        text_parts = 0
+        for index, candidate in enumerate(candidates):
+            content = getattr(candidate, "content", None)
+            parts = getattr(content, "parts", None) or []
+            part_types: list[str] = []
+            for part in parts:
+                inline_data = getattr(part, "inline_data", None)
+                text = getattr(part, "text", None)
+                if inline_data is not None:
+                    part_types.append("inline_data")
+                    inline_data_parts += 1
+                elif text:
+                    part_types.append("text")
+                    text_parts += 1
+                else:
+                    part_types.append("other")
+            finish_reason = getattr(candidate, "finish_reason", None)
+            candidate_summaries.append(
+                {
+                    "index": index,
+                    "part_types": part_types,
+                    "finish_reason": (
+                        str(getattr(finish_reason, "value", finish_reason))
+                        if finish_reason is not None
+                        else None
+                    ),
+                }
+            )
+        prompt_feedback = getattr(response, "prompt_feedback", None)
+        block_reason = getattr(prompt_feedback, "block_reason", None)
+        return {
+            "candidate_count": len(candidates),
+            "inline_data_part_count": inline_data_parts,
+            "text_part_count": text_parts,
+            "prompt_block_reason": (
+                str(getattr(block_reason, "value", block_reason))
+                if block_reason is not None
+                else None
+            ),
+            "candidate_summaries": candidate_summaries,
+        }
+
+    def _extract_inline_image_bytes(self, response: Any) -> bytes:
+        candidates = getattr(response, "candidates", None) or []
+        for candidate in candidates:
+            content = getattr(candidate, "content", None)
+            parts = getattr(content, "parts", None) or []
+            for part in parts:
+                inline_data = getattr(part, "inline_data", None)
+                if inline_data is None:
+                    continue
+                data = getattr(inline_data, "data", None)
+                if isinstance(data, bytes):
+                    return data
+                if isinstance(data, str) and data:
+                    return base64.b64decode(data)
+        raise RuntimeError(f"No inline image data returned for {self.model_id}")
+
+    def _build_content_config(
+        self, modalities: tuple[genai_types.Modality, ...]
+    ) -> genai_types.GenerateContentConfig:
+        config = genai_types.GenerateContentConfig(response_modalities=list(modalities))
+        # Guard rail: structured output fields must never be set for image generation.
+        if config.response_mime_type is not None or config.response_schema is not None:
+            raise RuntimeError("Structured output settings detected in image generation config.")
+        return config
+
+    def _generate_with_imagen_predict(self, final_prompt: str) -> tuple[bytes, dict[str, Any]]:
+        if self._client is None:
+            raise RuntimeError("Gemini client not initialized")
+        response = self._client.models.generate_images(
+            model=self.model_id,
+            prompt=final_prompt,
+            config={"number_of_images": 1},
+        )
+        generated_images = getattr(response, "generated_images", None) or []
+        if not generated_images:
+            raise RuntimeError(f"No generated images returned for {self.model_id}")
+        generated_image = generated_images[0].image
+        image_bytes = getattr(generated_image, "image_bytes", None)
+        if image_bytes is None:
+            raise RuntimeError(f"No image bytes returned for {self.model_id}")
+        usage = self._usage_dict(response)
+        usage["generation_method"] = "generate_images"
+        return image_bytes, usage
+
+    def _invoke_generate_content(
+        self,
+        *,
+        final_prompt: str,
+        modalities: tuple[genai_types.Modality, ...],
+    ) -> tuple[bytes, dict[str, Any]]:
+        if self._client is None:
+            raise RuntimeError("Gemini client not initialized")
+        config = self._build_content_config(modalities)
+        response = self._client.models.generate_content(
+            model=self.model_id,
+            contents=final_prompt,
+            config=config,
+        )
+        diagnostics = self._response_diagnostics(response)
+        try:
+            image_bytes = self._extract_inline_image_bytes(response)
+        except RuntimeError as exc:
+            raise RuntimeError(f"{exc}; response_diagnostics={diagnostics}") from exc
+        usage = self._usage_dict(response)
+        usage["generation_method"] = "generate_content"
+        usage["response_modalities"] = [modality.value for modality in modalities]
+        usage["response_diagnostics"] = diagnostics
+        return image_bytes, usage
+
+    def _generate_with_gemini_content(self, final_prompt: str) -> tuple[bytes, dict[str, Any]]:
+        strategy = _GENERATION_STRATEGIES.get(self.model_id, _DEFAULT_GENERATION_STRATEGY)
+        try:
+            return self._invoke_generate_content(
+                final_prompt=final_prompt,
+                modalities=strategy.primary_modalities,
+            )
+        except RuntimeError as exc:
+            if (
+                "No inline image data returned" not in str(exc)
+                or not self._allow_text_image_fallback
+                or strategy.fallback_modalities is None
+            ):
+                raise
+        image_bytes, usage = self._invoke_generate_content(
+            final_prompt=final_prompt,
+            modalities=strategy.fallback_modalities,
+        )
+        usage["strategy_fallback_used"] = True
+        usage["strategy_fallback_reason"] = "primary_response_missing_inline_image_data"
+        return image_bytes, usage
+
+    def generate_panel_image(self, request: PanelImageRequest) -> PanelImageResult:
+        final_prompt = f"{request.style_guide}\n\nPanel {request.panel_number}\n{request.prompt}"
+        if request.dry_run or self._client is None:
+            create_placeholder_image(
+                output_path=request.output_path,
+                title=f"{self.model_id} (dry-run)",
+                prompt=final_prompt,
+                width=request.width,
+                height=request.height,
+            )
+            return PanelImageResult(
+                image_path=request.output_path,
+                provider_usage={"mode": "dry_run"},
+                estimated_cost_usd=estimate_cost(self.model_id, 1),
+            )
+
+        def _operation() -> tuple[bytes, dict[str, Any]]:
+            if self.model_id.startswith("imagen-"):
+                return self._generate_with_imagen_predict(final_prompt)
+            return self._generate_with_gemini_content(final_prompt)
+
+        image_bytes, usage = run_with_reliability(
+            key=f"google:{self.model_id}",
+            policy=self._reliability_policy,
+            circuit_store=self._circuit_store,
+            operation=_operation,
+        )
+        out_path = Path(request.output_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_bytes(image_bytes)
+        return PanelImageResult(
+            image_path=request.output_path,
+            provider_usage=usage,
+            estimated_cost_usd=estimate_cost(self.model_id, 1),
+        )

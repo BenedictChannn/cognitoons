@@ -1,0 +1,6 @@
+{
+  "setup": "Characters encounter a real problem requiring CAP theorem and real-world tradeoffs.",
+  "confusion": "They choose a naive strategy and hit failure.",
+  "insight": "They discover a better mental model and improve outcomes.",
+  "recap": "They summarize CAP theorem and real-world tradeoffs as a repeatable decision process."
+}

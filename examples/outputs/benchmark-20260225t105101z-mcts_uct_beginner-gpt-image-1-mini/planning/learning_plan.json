@@ -1,0 +1,14 @@
+{
+  "topic": "Explain UCT in MCTS to a beginner",
+  "audience_level": "beginner",
+  "objectives": [
+    "Understand the intuition behind Explain UCT in MCTS to a beginner",
+    "Explain Explain UCT in MCTS to a beginner with a simple metaphor",
+    "Apply Explain UCT in MCTS to a beginner to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Explain UCT in MCTS to a beginner has only one correct strategy",
+    "Explain UCT in MCTS to a beginner is purely theoretical and not practical"
+  ],
+  "recap_message": "Explain UCT in MCTS to a beginner: balance intuition, structure, and tradeoffs."
+}

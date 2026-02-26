@@ -1,0 +1,55 @@
+{
+  "run_id": "live-nano-pro-v1",
+  "stage": "pre_render_gemini-3.1-flash-image-preview",
+  "critique_mode": "warn",
+  "overall_verdict": "pass",
+  "overall_score": 0.98,
+  "blocking_issue_count": 0,
+  "major_issue_count": 0,
+  "reviewer_reports": [
+    {
+      "reviewer": "technical",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.78,
+      "summary": "Validated technical key-point coverage and misconception handling.",
+      "issues": []
+    },
+    {
+      "reviewer": "beginner",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.74,
+      "summary": "Evaluated readability, jargon burden, and metaphor support.",
+      "issues": []
+    },
+    {
+      "reviewer": "first_year",
+      "verdict": "pass",
+      "score": 0.9,
+      "confidence": 0.71,
+      "summary": "Checked intuition-to-formalism bridge quality.",
+      "issues": []
+    },
+    {
+      "reviewer": "pedagogy",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.8,
+      "summary": "Validated narrative progression for teaching effectiveness.",
+      "issues": []
+    },
+    {
+      "reviewer": "visual",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.77,
+      "summary": "Checked caption density and readability safety constraints.",
+      "issues": []
+    }
+  ],
+  "recommended_actions": [],
+  "created_at": "2026-02-26T17:40:20.349178+00:00",
+  "iteration": 0,
+  "auto_rewrite_enabled": true
+}

@@ -1,0 +1,10 @@
+Title: Q-learning with epsilon-greedy exploration: A Visual Walkthrough
+Topic: Q-learning with epsilon-greedy exploration
+Audience: beginner
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Confusion scene: Ada and Turing discuss Q-learning with epsilon-greedy exploration.
+Dialogue text to make legible in scene: Ada: "I thought Q-learning with epsilon-greedy exploration was simpler." Turing: "Let’s unpack Q-learning with epsilon-greedy exploration with a metaphor."
+Teaching intent: Teach: Q-learning with epsilon-greedy exploration
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

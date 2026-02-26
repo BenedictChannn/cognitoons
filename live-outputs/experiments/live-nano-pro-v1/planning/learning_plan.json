@@ -1,0 +1,14 @@
+{
+  "topic": "Explain lock-free stack ABA problem to first-year CS student",
+  "audience_level": "beginner",
+  "objectives": [
+    "Understand the intuition behind Explain lock-free stack ABA problem to first-year CS student",
+    "Explain Explain lock-free stack ABA problem to first-year CS student with a simple metaphor",
+    "Apply Explain lock-free stack ABA problem to first-year CS student to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Explain lock-free stack ABA problem to first-year CS student has only one correct strategy",
+    "Explain lock-free stack ABA problem to first-year CS student is purely theoretical and not practical"
+  ],
+  "recap_message": "Explain lock-free stack ABA problem to first-year CS student: balance intuition, structure, and tradeoffs."
+}

@@ -1,0 +1,157 @@
+{
+  "benchmark_id": "benchmark-20260225T105101Z",
+  "model_results": [
+    {
+      "item_id": "mcts_uct_beginner",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7673,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-mcts_uct_beginner-gpt-image-1-mini"
+    },
+    {
+      "item_id": "agent_tool_use",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.769,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-agent_tool_use-gpt-image-1-mini"
+    },
+    {
+      "item_id": "q_learning",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.8109,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-q_learning-gpt-image-1-mini"
+    },
+    {
+      "item_id": "policy_gradient",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7785,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-policy_gradient-gpt-image-1-mini"
+    },
+    {
+      "item_id": "paxos_consensus",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7741,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-paxos_consensus-gpt-image-1-mini"
+    },
+    {
+      "item_id": "raft_basics",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7931,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-raft_basics-gpt-image-1-mini"
+    },
+    {
+      "item_id": "cache_invalidation",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7488,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-cache_invalidation-gpt-image-1-mini"
+    },
+    {
+      "item_id": "cap_theorem",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7839,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-cap_theorem-gpt-image-1-mini"
+    },
+    {
+      "item_id": "eventual_consistency",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.77,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-eventual_consistency-gpt-image-1-mini"
+    },
+    {
+      "item_id": "vector_clocks",
+      "model_key": "gpt-image-1-mini",
+      "score": 0.7771,
+      "cost_usd": 0.06,
+      "run_id": "benchmark-20260225t105101z-vector_clocks-gpt-image-1-mini"
+    },
+    {
+      "item_id": "mcts_uct_beginner",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7673,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-mcts_uct_beginner-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "agent_tool_use",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.769,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-agent_tool_use-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "q_learning",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.8109,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-q_learning-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "policy_gradient",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7785,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "paxos_consensus",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7741,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-paxos_consensus-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "raft_basics",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7931,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-raft_basics-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "cache_invalidation",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7488,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-cache_invalidation-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "cap_theorem",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7839,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-cap_theorem-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "eventual_consistency",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.77,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-eventual_consistency-gemini-2.5-flash-image"
+    },
+    {
+      "item_id": "vector_clocks",
+      "model_key": "gemini-2.5-flash-image",
+      "score": 0.7771,
+      "cost_usd": 0.072,
+      "run_id": "benchmark-20260225t105101z-vector_clocks-gemini-2.5-flash-image"
+    }
+  ],
+  "leaderboard": [
+    {
+      "model_key": "gpt-image-1-mini",
+      "mean_score": 0.7773,
+      "total_cost_usd": 0.6
+    },
+    {
+      "model_key": "gemini-2.5-flash-image",
+      "mean_score": 0.7773,
+      "total_cost_usd": 0.72
+    }
+  ]
+}

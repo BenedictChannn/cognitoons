@@ -1,0 +1,10 @@
+Title: Vector clocks and causality: A Visual Walkthrough
+Topic: Vector clocks and causality
+Audience: advanced
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Confusion scene: Ada and Turing discuss Vector clocks and causality.
+Dialogue text to make legible in scene: Ada: "I thought Vector clocks and causality was simpler." Turing: "Let’s unpack Vector clocks and causality with a metaphor."
+Teaching intent: Teach: Vector clocks and causality
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

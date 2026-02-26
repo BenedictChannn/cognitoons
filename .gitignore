@@ -1,1 +1,16 @@
 .env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+live-outputs/experiment_registry.jsonl
+live-outputs/panel_cache.json
+live-outputs/provider_circuit.json
+live-outputs/exploration_bandit.json
+runs/exploration_bandit.json
+runs/panel_cache.json
+runs/provider_circuit.json
+live-outputs/experiments/benchmark-*-*-*/
+live-outputs/experiments/live-uct-api/images/
+live-outputs/experiments/*/images/
+checkpoints/

@@ -1,0 +1,51 @@
+{
+  "topic": "Explain lock-free stack with ABA problem",
+  "audience_level": "beginner",
+  "template": "failure-postmortem",
+  "theme": "textbook-modern",
+  "story_title": "Explain lock-free stack with ABA problem: A Visual Walkthrough (failure-postmortem, textbook-modern)",
+  "character_style_guide": "Theme Textbook Modern: modern textbook diagram elements integrated into scenes. Palette: offwhite, navy, teal. Tone: precise and instructional. Audience level: beginner. Template Failure Postmortem: Use incident -> root-cause -> remediation progression with explicit lesson learned. Beats: incident, root-cause, fix, recap.",
+  "recurring_characters": [
+    "Ada",
+    "Turing"
+  ],
+  "panels": [
+    {
+      "panel_number": 1,
+      "scene_description": "Incident scene (Failure Postmortem): Ada and Turing discuss Explain lock-free stack with ABA problem.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack with ABA problem was simpler.\" Turing: \"Let’s unpack Explain lock-free stack with ABA problem with a metaphor.\"",
+      "teaching_intent": "Teach: Explain lock-free stack with ABA problem",
+      "misconception_addressed": "Explain lock-free stack with ABA problem has only one correct strategy",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack with ABA problem.",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 2,
+      "scene_description": "Root-Cause scene (Failure Postmortem): Ada and Turing discuss Explain lock-free stack with ABA problem. Confusion moment: naive approach fails and forces re-think.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack with ABA problem was simpler.\" Turing: \"Let’s unpack Explain lock-free stack with ABA problem with a metaphor.\"",
+      "teaching_intent": "Teach: Explain lock-free stack with ABA problem",
+      "misconception_addressed": "Explain lock-free stack with ABA problem is purely theoretical and not practical",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack with ABA problem.",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 3,
+      "scene_description": "Fix scene (Failure Postmortem): Ada and Turing discuss Explain lock-free stack with ABA problem.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack with ABA problem was simpler.\" Turing: \"Let’s unpack Explain lock-free stack with ABA problem with a metaphor.\"",
+      "teaching_intent": "Teach: Explain lock-free stack with ABA problem Formal tradeoff terms: policy, value estimate, and exploration bonus. Bridge intuition to formalism: choose action maximizing value estimate plus uncertainty bonus.",
+      "misconception_addressed": "Explain lock-free stack with ABA problem has only one correct strategy",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack with ABA problem.",
+      "metaphor_anchor": null
+    },
+    {
+      "panel_number": 4,
+      "scene_description": "Recap scene (Failure Postmortem): Ada and Turing discuss Explain lock-free stack with ABA problem.",
+      "dialogue_or_caption": "Ada: \"I thought Explain lock-free stack with ABA problem was simpler.\" Turing: \"Let’s unpack Explain lock-free stack with ABA problem with a metaphor.\"",
+      "teaching_intent": "Teach: Explain lock-free stack with ABA problem",
+      "misconception_addressed": "Explain lock-free stack with ABA problem is purely theoretical and not practical",
+      "expected_takeaway": "After this panel, learner understands: Explain lock-free stack with ABA problem. Final recap includes why naive strategy fails and when to apply the formal rule.",
+      "metaphor_anchor": null
+    }
+  ],
+  "recap_panel": 4
+}

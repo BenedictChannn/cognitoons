@@ -1,0 +1,67 @@
+{
+  "run_id": "benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image",
+  "model_key": "gemini-2.5-flash-image",
+  "provider": "google",
+  "mode": "draft",
+  "storyboard_hash": "d66f7583059e8dd15e6e6e9bb96c3fd8a4feeb9e0a657ce9f59726b5682ee6e6",
+  "prompt_hash": "57908d09af3066370e2d1a55294445b12c75d32320d5fa17b8b4485b65836694",
+  "started_at": "2026-02-25T10:51:06.642989+00:00",
+  "panel_records": [
+    {
+      "panel_number": 1,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_01.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_01.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 2,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_02.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_02.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 3,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_03.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_03.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 4,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_04.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_04.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 5,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_05.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_05.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    },
+    {
+      "panel_number": 6,
+      "prompt_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/panel_prompts/panel_06.txt",
+      "image_path": "examples/outputs/benchmark-20260225t105101z-policy_gradient-gemini-2.5-flash-image/images/gemini-2.5-flash-image/panel_06.png",
+      "estimated_cost_usd": 0.012,
+      "provider_usage": {
+        "mode": "dry_run"
+      }
+    }
+  ],
+  "total_estimated_cost_usd": 0.072,
+  "notes": []
+}

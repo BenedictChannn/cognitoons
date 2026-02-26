@@ -1,0 +1,6 @@
+{
+  "setup": "Characters encounter a real problem requiring Explain lock-free stack ABA problem to first-year CS student.",
+  "confusion": "They choose a naive strategy and hit failure.",
+  "insight": "They discover a better mental model and improve outcomes.",
+  "recap": "They summarize Explain lock-free stack ABA problem to first-year CS student as a repeatable decision process."
+}

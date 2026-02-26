@@ -1,0 +1,10 @@
+Title: Explain UCT in MCTS to a beginner: A Visual Walkthrough
+Topic: Explain UCT in MCTS to a beginner
+Audience: beginner
+Recurring characters: Ada, Turing
+Style and consistency guide: Semi-flat comic style, consistent faces and outfits, high contrast, clean speech bubbles.
+Scene: Insight scene: Ada and Turing discuss Explain UCT in MCTS to a beginner.
+Dialogue text to make legible in scene: Ada: "I thought Explain UCT in MCTS to a beginner was simpler." Turing: "Let’s unpack Explain UCT in MCTS to a beginner with a metaphor."
+Teaching intent: Teach: Explain UCT in MCTS to a beginner
+Metaphor anchor: Exploring hallways with a map and scorecard
+Instructions: keep characters visually consistent with prior panels.

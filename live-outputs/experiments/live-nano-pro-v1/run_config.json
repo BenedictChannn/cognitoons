@@ -1,0 +1,15 @@
+{
+  "run_id": "live-nano-pro-v1",
+  "topic": "Explain lock-free stack ABA problem to first-year CS student",
+  "source_text": null,
+  "audience_level": "beginner",
+  "panel_count": 4,
+  "mode": "draft",
+  "critique_mode": "warn",
+  "critique_max_iterations": null,
+  "auto_rewrite": true,
+  "image_text_mode": "none",
+  "template": "intuition-to-formalism",
+  "theme": "clean-whiteboard",
+  "created_at": "2026-02-26T17:37:22.141357+00:00"
+}

@@ -1,0 +1,265 @@
+{
+  "probe_id": "probe-gemini-3-pro-image-preview-20260226t171944z",
+  "model_key": "gemini-3-pro-image-preview",
+  "prompt": "Lock-free stack ABA problem visual metaphor, no text in image.",
+  "repetitions": 5,
+  "width": 512,
+  "height": 512,
+  "dry_run": false,
+  "started_at": "2026-02-26T17:19:44.325694+00:00",
+  "attempts": [
+    {
+      "attempt": 1,
+      "success": true,
+      "latency_s": 22.957,
+      "error_type": null,
+      "error_message": null,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1265,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 28,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 28
+          }
+        ],
+        "thoughts_token_count": 353,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 1646,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      },
+      "image_path": "/workspace/live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z/attempt_01.png"
+    },
+    {
+      "attempt": 2,
+      "success": true,
+      "latency_s": 54.982,
+      "error_type": null,
+      "error_message": null,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1398,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 28,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 28
+          }
+        ],
+        "thoughts_token_count": 420,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 1846,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      },
+      "image_path": "/workspace/live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z/attempt_02.png"
+    },
+    {
+      "attempt": 3,
+      "success": true,
+      "latency_s": 52.508,
+      "error_type": null,
+      "error_message": null,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1423,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 28,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 28
+          }
+        ],
+        "thoughts_token_count": 415,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 1866,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      },
+      "image_path": "/workspace/live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z/attempt_03.png"
+    },
+    {
+      "attempt": 4,
+      "success": true,
+      "latency_s": 23.06,
+      "error_type": null,
+      "error_message": null,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1392,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 28,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 28
+          }
+        ],
+        "thoughts_token_count": 605,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2025,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      },
+      "image_path": "/workspace/live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z/attempt_04.png"
+    },
+    {
+      "attempt": 5,
+      "success": true,
+      "latency_s": 55.402,
+      "error_type": null,
+      "error_message": null,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1526,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 28,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 28
+          }
+        ],
+        "thoughts_token_count": 306,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 1860,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      },
+      "image_path": "/workspace/live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z/attempt_05.png"
+    }
+  ],
+  "success_count": 5,
+  "failure_count": 0,
+  "success_rate": 1.0
+}

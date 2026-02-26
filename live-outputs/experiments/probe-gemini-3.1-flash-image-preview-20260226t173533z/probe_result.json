@@ -1,0 +1,60 @@
+{
+  "probe_id": "probe-gemini-3.1-flash-image-preview-20260226t173533z",
+  "model_key": "gemini-3.1-flash-image-preview",
+  "prompt": "Lock-free stack ABA problem visual metaphor, no text in image.",
+  "repetitions": 5,
+  "width": 512,
+  "height": 512,
+  "dry_run": false,
+  "started_at": "2026-02-26T17:35:33.488155+00:00",
+  "attempts": [
+    {
+      "attempt": 1,
+      "success": false,
+      "latency_s": 45.003,
+      "error_type": "provider_timeout",
+      "error_message": "Provider call failed for 'google:gemini-3.1-flash-image-preview': Provider call timed out after 45.0s for 'google:gemini-3.1-flash-image-preview'.",
+      "provider_usage": {},
+      "image_path": null
+    },
+    {
+      "attempt": 2,
+      "success": false,
+      "latency_s": 45.002,
+      "error_type": "provider_timeout",
+      "error_message": "Provider call failed for 'google:gemini-3.1-flash-image-preview': Provider call timed out after 45.0s for 'google:gemini-3.1-flash-image-preview'.",
+      "provider_usage": {},
+      "image_path": null
+    },
+    {
+      "attempt": 3,
+      "success": false,
+      "latency_s": 0.0,
+      "error_type": "provider_circuit_open",
+      "error_message": "Circuit open for 'google:gemini-3.1-flash-image-preview'. Cooldown in effect.",
+      "provider_usage": {},
+      "image_path": null
+    },
+    {
+      "attempt": 4,
+      "success": false,
+      "latency_s": 0.0,
+      "error_type": "provider_circuit_open",
+      "error_message": "Circuit open for 'google:gemini-3.1-flash-image-preview'. Cooldown in effect.",
+      "provider_usage": {},
+      "image_path": null
+    },
+    {
+      "attempt": 5,
+      "success": false,
+      "latency_s": 0.0,
+      "error_type": "provider_circuit_open",
+      "error_message": "Circuit open for 'google:gemini-3.1-flash-image-preview'. Cooldown in effect.",
+      "provider_usage": {},
+      "image_path": null
+    }
+  ],
+  "success_count": 0,
+  "failure_count": 5,
+  "success_rate": 0.0
+}

@@ -1,0 +1,6 @@
+{
+  "setup": "Characters encounter a real problem requiring Raft election and log replication basics.",
+  "confusion": "They choose a naive strategy and hit failure.",
+  "insight": "They discover a better mental model and improve outcomes.",
+  "recap": "They summarize Raft election and log replication basics as a repeatable decision process."
+}

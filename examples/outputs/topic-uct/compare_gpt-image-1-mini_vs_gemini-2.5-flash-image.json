@@ -1,0 +1,6 @@
+{
+  "run_id": "topic-uct",
+  "model_a": "gpt-image-1-mini",
+  "model_b": "gemini-2.5-flash-image",
+  "output_path": "examples/outputs/topic-uct/composite/compare_gpt-image-1-mini_vs_gemini-2.5-flash-image.png"
+}

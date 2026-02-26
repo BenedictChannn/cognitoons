@@ -1,0 +1,14 @@
+{
+  "topic": "How LLM agents use tools reliably",
+  "audience_level": "intermediate",
+  "objectives": [
+    "Understand the intuition behind How LLM agents use tools reliably",
+    "Explain How LLM agents use tools reliably with a simple metaphor",
+    "Apply How LLM agents use tools reliably to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "How LLM agents use tools reliably has only one correct strategy",
+    "How LLM agents use tools reliably is purely theoretical and not practical"
+  ],
+  "recap_message": "How LLM agents use tools reliably: balance intuition, structure, and tradeoffs."
+}

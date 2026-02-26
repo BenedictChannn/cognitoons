@@ -1,0 +1,14 @@
+{
+  "topic": "Explain lock-free stack with ABA problem",
+  "audience_level": "beginner",
+  "objectives": [
+    "Understand the intuition behind Explain lock-free stack with ABA problem",
+    "Explain Explain lock-free stack with ABA problem with a simple metaphor",
+    "Apply Explain lock-free stack with ABA problem to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Explain lock-free stack with ABA problem has only one correct strategy",
+    "Explain lock-free stack with ABA problem is purely theoretical and not practical"
+  ],
+  "recap_message": "Explain lock-free stack with ABA problem: balance intuition, structure, and tradeoffs."
+}

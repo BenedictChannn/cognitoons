@@ -1,0 +1,14 @@
+{
+  "topic": "Q-learning with epsilon-greedy exploration",
+  "audience_level": "beginner",
+  "objectives": [
+    "Understand the intuition behind Q-learning with epsilon-greedy exploration",
+    "Explain Q-learning with epsilon-greedy exploration with a simple metaphor",
+    "Apply Q-learning with epsilon-greedy exploration to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Q-learning with epsilon-greedy exploration has only one correct strategy",
+    "Q-learning with epsilon-greedy exploration is purely theoretical and not practical"
+  ],
+  "recap_message": "Q-learning with epsilon-greedy exploration: balance intuition, structure, and tradeoffs."
+}

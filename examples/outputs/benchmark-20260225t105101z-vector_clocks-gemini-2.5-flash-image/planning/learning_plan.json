@@ -1,0 +1,14 @@
+{
+  "topic": "Vector clocks and causality",
+  "audience_level": "advanced",
+  "objectives": [
+    "Understand the intuition behind Vector clocks and causality",
+    "Explain Vector clocks and causality with a simple metaphor",
+    "Apply Vector clocks and causality to a practical engineering decision"
+  ],
+  "misconceptions": [
+    "Vector clocks and causality has only one correct strategy",
+    "Vector clocks and causality is purely theoretical and not practical"
+  ],
+  "recap_message": "Vector clocks and causality: balance intuition, structure, and tradeoffs."
+}
