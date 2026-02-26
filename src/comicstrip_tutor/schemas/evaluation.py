@@ -35,5 +35,8 @@ class EvaluationResult(BaseModel):
     run_id: str
     model_key: str
     metrics: EvaluationMetricSet
+    comprehension_score: float | None = Field(default=None, ge=0, le=1)
+    technical_rigor_score: float | None = Field(default=None, ge=0, le=1)
+    learning_effectiveness_score: float | None = Field(default=None, ge=0, le=1)
     checks: dict[str, bool] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

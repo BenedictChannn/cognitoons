@@ -225,6 +225,7 @@ def render_storyboard(
         prompt_paths=prompt_files,
         image_paths=image_files,
         enable_llm_judge=enable_llm_judge,
+        critique_report=critique_report,
     )
     write_json(paths.evaluations_dir / f"{model_key}.json", evaluation.model_dump())
     store.append_registry(

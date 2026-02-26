@@ -30,6 +30,9 @@ _BENCHMARK_ADAPTER = TypeAdapter(list[BenchmarkItem])
 def _score_for_run(run_root: Path, model_key: str) -> float:
     eval_path = run_root / "evaluation" / f"{model_key}.json"
     payload = read_json(eval_path)
+    les = payload.get("learning_effectiveness_score")
+    if les is not None:
+        return float(les)
     metrics = payload["metrics"]
     core = [
         float(metrics["concept_coverage"]),
