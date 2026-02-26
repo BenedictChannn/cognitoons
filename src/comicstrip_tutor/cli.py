@@ -28,6 +28,7 @@ from comicstrip_tutor.pipeline.storyboard_editor import (
 )
 from comicstrip_tutor.presets import get_preset, list_presets
 from comicstrip_tutor.reporting.quality_report import generate_quality_report_from_run
+from comicstrip_tutor.reporting.trend_report import write_trend_report
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.build_log import BuildLogEntry, append_build_log, ensure_topic_log
@@ -466,6 +467,18 @@ def quality_report(
     run_root = store.open_run(run_id).root
     output_path = generate_quality_report_from_run(run_root=run_root, model_key=model)
     console.print(f"[green]Quality report:[/green] {output_path}")
+
+
+@app.command("trend-report")
+def trend_report(
+    output: Path | None = typer.Option(None, "--output"),
+) -> None:
+    """Generate trend report from experiment registry events."""
+    config = _app_config()
+    registry_path = config.output_root.parent / "experiment_registry.jsonl"
+    output_path = output or (config.output_root.parent / "trend_report.md")
+    report_path = write_trend_report(registry_path=registry_path, output_path=output_path)
+    console.print(f"[green]Trend report:[/green] {report_path}")
 
 
 @app.command("build-log")

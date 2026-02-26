@@ -89,6 +89,7 @@ comic-tutor generate-preset --preset <preset_id> --topic "..."
 comic-tutor edit-storyboard <run_id> [--open-editor]
 comic-tutor render <run_id> --model <model_key> [--dry-run] [--critique-mode off|warn|strict] [--image-text-mode none|minimal|full]
 comic-tutor quality-report <run_id> --model <model_key>
+comic-tutor trend-report [--output path.md]
 comic-tutor reroll-panel <run_id> --model <model_key> --panel 3 --metaphor "..."
 comic-tutor compare <run_id> --model-a <A> --model-b <B> [--dry-run]
 comic-tutor benchmark --dataset benchmark/comic_benchmark_v1.json --limit 10 [--dry-run|--live]
