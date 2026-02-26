@@ -203,3 +203,33 @@
 **References**
 - commits 40efa55, 9fdd32e, 0adcf34, 52364e9
 - checkpoint runs: checkpoint-uct-v2, checkpoint-consistency-v2, benchmark-20260226T061922Z
+
+### 2026-02-26 - Add style-guide compiler and template/theme registries
+
+**Summary**
+- Implemented explicit template registry and theme registry with CLI discovery commands.
+- Planner now compiles template+theme into planning/style_guide.json and embeds constraints in storyboard style guide text.
+- Added strict fallback path for gemini-3-pro-image-preview to gemini-2.5-flash-image with manifest notes.
+
+**Details**
+- New commands: list-templates, list-themes for discoverability and controlled exploration.
+- Storyboard schema now captures template and theme identifiers for reproducibility.
+- Added tests for style compiler and gemini fallback integration path.
+
+**Files touched**
+- `src/comicstrip_tutor/styles/compiler.py`
+- `src/comicstrip_tutor/styles/templates.py`
+- `src/comicstrip_tutor/styles/themes.py`
+- `src/comicstrip_tutor/pipeline/planner_pipeline.py`
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+
+**Impact**
+- Improves exploration-vs-exploitation workflow with deterministic style artifacts.
+- Reduces production risk from gemini-3 hang by enabling graceful panel fallback.
+
+**Follow-ups**
+- Implement critique-driven automatic rewrite loop that mutates storyboard before render.
+- Add LES-specific leaderboard columns in markdown/html reports.
+
+**References**
+- commits 7796e54, b5e5023, 52364e9
