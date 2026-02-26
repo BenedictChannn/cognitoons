@@ -328,3 +328,33 @@
 
 **References**
 - commit d9df218
+
+### 2026-02-26 - Add onboarding presets and per-run quality report UX
+
+**Summary**
+- Added preset registry and CLI commands (list-presets, generate-preset) for faster onboarding and repeatable workflows.
+- Added quality-report command and markdown report artifact per run/model with publishability and critique issue diagnostics.
+- Updated render pipeline to auto-write quality reports after render completion/failure for easier review.
+
+**Details**
+- Presets include fast-draft, publish-strict, and cost-aware-explore with curated default configuration.
+- Quality report includes completion status, LES/comprehension/rigor, publishability reasons, and structured critique issue table.
+
+**Files touched**
+- `src/comicstrip_tutor/presets.py`
+- `src/comicstrip_tutor/reporting/quality_report.py`
+- `src/comicstrip_tutor/cli.py`
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+- `tests/test_presets.py`
+- `tests/test_quality_report.py`
+
+**Impact**
+- Improves paid-user onboarding and shortens path to first quality output.
+- Makes pass/fail reasons transparent for each run, improving trust and debuggability.
+
+**Follow-ups**
+- Add themed preset packs by topic domain (systems, ML, backend, frontend).
+
+**References**
+- commits 94d0440, 553600d
+- checkpoint runs: checkpoint-quality-report-v5, checkpoint-preset-v1
