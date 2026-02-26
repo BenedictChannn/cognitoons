@@ -358,3 +358,33 @@
 **References**
 - commits 94d0440, 553600d
 - checkpoint runs: checkpoint-quality-report-v5, checkpoint-preset-v1
+
+### 2026-02-26 - Finish onboarding/report polish and recalibrate rigor gate diagnostics
+
+**Summary**
+- Added list-presets and generate-preset commands with curated preset registry for faster onboarding.
+- Added per-run quality report generation command and auto-generated quality markdown after render.
+- Refined technical rigor scoring to penalize issue codes proportionally and improved publish-gate pass alignment.
+- Published new live benchmark diagnostics checkpoint with updated gate-failure columns.
+
+**Details**
+- Benchmark CLI now supports explicit --dry-run/--live toggle; validated via live benchmark run.
+- Dry benchmark pass-rate on 5-item subset improved from 0.20 to 0.60 after rigor scoring calibration.
+- Live benchmark checkpoint benchmark-20260226T092918Z produced LES 0.9720 and publish-gate pass 1.0 on sampled item.
+
+**Files touched**
+- `src/comicstrip_tutor/presets.py`
+- `src/comicstrip_tutor/reporting/quality_report.py`
+- `src/comicstrip_tutor/evaluation/scorer.py`
+- `src/comicstrip_tutor/cli.py`
+- `live-outputs/experiments/benchmark-20260226T092918Z/`
+
+**Impact**
+- Improves first-run product onboarding and transparency of run-level quality outcomes.
+- Makes benchmark diagnostics more actionable and better aligned with learning-quality goals.
+
+**Follow-ups**
+- Expand preset catalog by domain and attach recommended model tiers per preset.
+
+**References**
+- commits 94d0440, 553600d, 651bd1b, 4d22e52
