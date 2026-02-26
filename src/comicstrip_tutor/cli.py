@@ -12,6 +12,7 @@ from rich.table import Table
 
 from comicstrip_tutor.benchmark.runner import run_benchmark
 from comicstrip_tutor.config import AppConfig
+from comicstrip_tutor.exploration.bandit import ExplorationBanditStore
 from comicstrip_tutor.image_models.registry import list_models
 from comicstrip_tutor.logging_utils import configure_logging
 from comicstrip_tutor.pipeline.compare_pipeline import compare_models_on_storyboard
@@ -42,6 +43,10 @@ def _app_config() -> AppConfig:
 
 def _new_run_id() -> str:
     return f"comic-{utc_timestamp().lower()}"
+
+
+def _bandit_store() -> ExplorationBanditStore:
+    return ExplorationBanditStore(_app_config().output_root.parent / "exploration_bandit.json")
 
 
 @app.callback()
@@ -81,6 +86,50 @@ def list_themes_command() -> None:
     table.add_column("Description")
     for theme in list_themes():
         table.add_row(theme.theme_id, theme.title, theme.description)
+    console.print(table)
+
+
+@app.command("suggest-arm")
+def suggest_arm(
+    models: str = typer.Option("gpt-image-1-mini,gemini-2.5-flash-image", "--models"),
+    templates: str = typer.Option("intuition-to-formalism,misconception-first", "--templates"),
+    themes: str = typer.Option("clean-whiteboard,textbook-modern", "--themes"),
+    text_modes: str = typer.Option("none,minimal", "--text-modes"),
+    exploration_c: float = typer.Option(1.2, "--exploration-c"),
+) -> None:
+    """Suggest next exploration arm using UCB scoring."""
+    model_list = [entry.strip() for entry in models.split(",") if entry.strip()]
+    template_list = [entry.strip() for entry in templates.split(",") if entry.strip()]
+    theme_list = [entry.strip() for entry in themes.split(",") if entry.strip()]
+    text_mode_list = [entry.strip() for entry in text_modes.split(",") if entry.strip()]
+    candidates = [
+        f"{template}|{theme}|{model}|{text_mode}"
+        for template in template_list
+        for theme in theme_list
+        for model in model_list
+        for text_mode in text_mode_list
+    ]
+    suggested = _bandit_store().suggest_arm(candidate_arms=candidates, exploration_c=exploration_c)
+    console.print(f"[green]Suggested arm:[/green] {suggested}")
+
+
+@app.command("bandit-stats")
+def bandit_stats(limit: int = typer.Option(10, "--limit", min=1)) -> None:
+    """Show top exploration arm stats."""
+    stats = _bandit_store().all_stats()
+    stats_sorted = sorted(stats, key=lambda item: item.mean_reward, reverse=True)[:limit]
+    table = Table(title="Exploration Bandit Stats")
+    table.add_column("Arm")
+    table.add_column("Pulls")
+    table.add_column("Mean Reward")
+    table.add_column("Total Cost")
+    for stat in stats_sorted:
+        table.add_row(
+            stat.arm_id,
+            str(stat.pulls),
+            f"{stat.mean_reward:.4f}",
+            f"{stat.total_cost_usd:.4f}",
+        )
     console.print(table)
 
 

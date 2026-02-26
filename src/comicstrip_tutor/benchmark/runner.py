@@ -11,6 +11,7 @@ from comicstrip_tutor.benchmark.early_stop import should_early_stop
 from comicstrip_tutor.benchmark.leaderboard import build_leaderboard
 from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.constants import CHEAP_FIRST_MODEL_ORDER
+from comicstrip_tutor.exploration.bandit import ExplorationBanditStore
 from comicstrip_tutor.pipeline.planner_pipeline import run_planning_pipeline
 from comicstrip_tutor.pipeline.render_pipeline import render_storyboard
 from comicstrip_tutor.reporting.html_report import write_html_leaderboard
@@ -86,6 +87,7 @@ def run_benchmark(
         dataset = dataset[:limit]
     model_order = models or CHEAP_FIRST_MODEL_ORDER
     store = ArtifactStore(app_config.output_root)
+    bandit_store = ExplorationBanditStore(app_config.output_root.parent / "exploration_bandit.json")
     results: list[BenchmarkModelResult] = []
     best_mean_so_far = 0.0
 
@@ -128,6 +130,18 @@ def run_benchmark(
                     cost_usd=manifest.total_estimated_cost_usd,
                     run_id=run_id,
                 )
+            )
+            arm_id = (
+                f"{run_config.template}|{run_config.theme}|{model_key}|{run_config.image_text_mode}"
+            )
+            adjusted_reward = max(
+                0.0,
+                score - min(0.25, manifest.total_estimated_cost_usd),
+            )
+            bandit_store.record(
+                arm_id=arm_id,
+                reward=adjusted_reward,
+                cost_usd=manifest.total_estimated_cost_usd,
             )
             if should_early_stop(model_scores=model_scores, best_mean_so_far=best_mean_so_far):
                 break

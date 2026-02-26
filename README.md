@@ -22,8 +22,10 @@ It is intentionally not a one-shot image generator. It uses explicit intermediat
 - Benchmark harness with cheap→expensive model ordering + early-stop
 - Multi-reviewer critique gate (technical + beginner + first-year + pedagogy + visual)
 - `image_text_mode` controls (`none|minimal|full`) with production default `none`
+- Automatic critique-driven storyboard rewrite loop (`--auto-rewrite`)
 - Cost estimate + usage metadata capture
 - Reliability guardrails (timeout, retry, circuit breaker) + Gemini 3 fallback
+- Exploration-vs-exploitation scaffolding via persistent UCB bandit arm stats
 - Prompt/image cache reuse for reproducible model comparisons
 - Build logs under `docs/build-logs/`
 - Experiment artifacts under `runs/experiments/`
@@ -78,6 +80,8 @@ Run CLI:
 comic-tutor list-models
 comic-tutor list-templates
 comic-tutor list-themes
+comic-tutor suggest-arm [--models ... --templates ... --themes ... --text-modes ...]
+comic-tutor bandit-stats [--limit 10]
 comic-tutor generate --topic "..." [--panel-count 6] [--mode draft|publish] [--template ...] [--theme ...]
 comic-tutor edit-storyboard <run_id> [--open-editor]
 comic-tutor render <run_id> --model <model_key> [--dry-run] [--critique-mode off|warn|strict] [--image-text-mode none|minimal|full]
@@ -103,6 +107,8 @@ comic-tutor generate \
   --panel-count 6 \
   --mode draft \
   --critique-mode strict \
+  --auto-rewrite \
+  --critique-max-iterations 2 \
   --image-text-mode none \
   --template intuition-to-formalism \
   --theme clean-whiteboard
@@ -185,6 +191,7 @@ Global:
 - `<output_root_parent>/experiment_registry.jsonl` (default: `runs/experiment_registry.jsonl`)
 - `<output_root_parent>/panel_cache.json` (prompt+model cache for panel reuse)
 - `<output_root_parent>/provider_circuit.json` (provider/model circuit-breaker state)
+- `<output_root_parent>/exploration_bandit.json` (arm pulls/reward aggregates)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
 
 Live showcase artifacts (real API runs) can be kept in a separate output root,
