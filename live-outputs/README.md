@@ -12,6 +12,7 @@ Included:
   - publish-mode composites for `gpt-image-1-mini` and `gemini-2.5-flash-image`
   - evaluation artifacts with LES + publishability verdicts
 - `experiments/benchmark-20260225T120525Z/` (live benchmark leaderboard report)
+- `experiments/benchmark-20260226T092918Z/` (live benchmark with updated gate diagnostics)
 
 Not included:
 - Full raw live benchmark per-item payloads (kept local during development to limit repo bloat).

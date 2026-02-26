@@ -6,6 +6,7 @@ __pycache__/
 live-outputs/experiment_registry.jsonl
 live-outputs/panel_cache.json
 live-outputs/provider_circuit.json
+live-outputs/exploration_bandit.json
 runs/exploration_bandit.json
 live-outputs/experiments/benchmark-*-*-*/
 live-outputs/experiments/live-uct-api/images/
