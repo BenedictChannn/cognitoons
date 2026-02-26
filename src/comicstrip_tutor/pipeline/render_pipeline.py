@@ -16,6 +16,7 @@ from comicstrip_tutor.image_models.registry import create_model
 from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.pipeline.error_taxonomy import classify_render_exception
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
+from comicstrip_tutor.reporting.quality_report import write_quality_report
 from comicstrip_tutor.schemas.runs import (
     CritiqueMode,
     ImageTextMode,
@@ -310,6 +311,15 @@ def render_storyboard(
                 "completion_status": completion_status,
             }
         )
+
+    write_quality_report(
+        output_path=paths.reports_dir / f"quality_{model_key}.md",
+        run_id=run_id,
+        model_key=model_key,
+        manifest_payload=manifest.model_dump(),
+        critique_payload=critique_report.model_dump(),
+        evaluation_payload=evaluation.model_dump() if evaluation is not None else None,
+    )
 
     if caught_exception is not None:
         raise RuntimeError(

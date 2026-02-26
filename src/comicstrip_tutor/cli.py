@@ -26,6 +26,7 @@ from comicstrip_tutor.pipeline.storyboard_editor import (
     save_storyboard,
     validate_storyboard_file,
 )
+from comicstrip_tutor.reporting.quality_report import generate_quality_report_from_run
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.build_log import BuildLogEntry, append_build_log, ensure_topic_log
@@ -395,6 +396,18 @@ def report(benchmark_run: str = typer.Option(..., "--benchmark-run")) -> None:
     console.print(f"[green]Markdown:[/green] {benchmark_dir / 'leaderboard.md'}")
     console.print(f"[green]HTML:[/green] {benchmark_dir / 'leaderboard.html'}")
     console.print(json.dumps(payload.get("leaderboard", []), indent=2))
+
+
+@app.command("quality-report")
+def quality_report(
+    run_id: str = typer.Argument(...),
+    model: str = typer.Option(..., "--model"),
+) -> None:
+    """Generate and print quality report path for run/model."""
+    store = ArtifactStore(_app_config().output_root)
+    run_root = store.open_run(run_id).root
+    output_path = generate_quality_report_from_run(run_root=run_root, model_key=model)
+    console.print(f"[green]Quality report:[/green] {output_path}")
 
 
 @app.command("build-log")

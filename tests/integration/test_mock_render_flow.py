@@ -35,3 +35,4 @@ def test_mock_render_flow(tmp_path: Path) -> None:
     )
     assert manifest.total_estimated_cost_usd > 0
     assert (tmp_path / "it-render" / "composite" / "gpt-image-1-mini" / "strip.png").exists()
+    assert (tmp_path / "it-render" / "reports" / "quality_gpt-image-1-mini.md").exists()
