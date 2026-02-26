@@ -26,14 +26,33 @@ _TEMPLATE = Template(
   <h1>Benchmark {{ benchmark_id }}</h1>
   <table>
     <thead>
-      <tr><th>Rank</th><th>Model</th><th>Mean Score</th><th>Total Cost (USD)</th></tr>
+      <tr>
+        <th>Rank</th>
+        <th>Model</th>
+        <th>Mean LES</th>
+        <th>Mean Score</th>
+        <th>Mean Comprehension</th>
+        <th>Mean Rigor</th>
+        <th>Publish Gate Pass</th>
+        <th>Total Cost (USD)</th>
+      </tr>
     </thead>
     <tbody>
       {% for row in leaderboard %}
+      {% set publish_pass = row.publish_gate_pass_rate
+        if row.publish_gate_pass_rate is defined else 0.0 %}
       <tr>
         <td>{{ loop.index }}</td>
         <td>{{ row.model_key }}</td>
+        <td>
+          {{ "%.4f"|format(row.mean_les if row.mean_les is defined else row.mean_score) }}
+        </td>
         <td>{{ "%.4f"|format(row.mean_score) }}</td>
+        <td>
+          {{ "%.4f"|format(row.mean_comprehension if row.mean_comprehension is defined else 0.0) }}
+        </td>
+        <td>{{ "%.4f"|format(row.mean_rigor if row.mean_rigor is defined else 0.0) }}</td>
+        <td>{{ "%.4f"|format(publish_pass) }}</td>
         <td>{{ "%.4f"|format(row.total_cost_usd) }}</td>
       </tr>
       {% endfor %}

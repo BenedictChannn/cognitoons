@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from comicstrip_tutor.critique.orchestrator import run_storyboard_critique, should_block_render
+from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.schemas.storyboard import PanelScript, Storyboard
 
 
@@ -75,3 +78,24 @@ def test_critique_strict_blocks_when_critical_issue_exists() -> None:
     )
     assert report.blocking_issue_count >= 1
     assert should_block_render(report)
+
+
+def test_critique_rewrite_loop_applies_targeted_fixes(tmp_path: Path) -> None:
+    broken = _sample_storyboard()
+    broken.recap_panel = 2
+    broken.panels[1].scene_description = "insight panel without confusion keyword"
+    rewritten, report, rewrite_count = run_critique_with_rewrites(
+        run_id="rewrite-test",
+        stage="post_planning",
+        critique_mode="strict",
+        storyboard=broken,
+        expected_key_points=["exploration vs exploitation", "visit counts"],
+        misconceptions=["always choose highest average reward"],
+        audience_level="beginner",
+        output_dir=tmp_path,
+        max_iterations=2,
+        auto_rewrite=True,
+    )
+    assert rewrite_count >= 1
+    assert rewritten.recap_panel == len(rewritten.panels)
+    assert not should_block_render(report)

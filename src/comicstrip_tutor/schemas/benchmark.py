@@ -21,6 +21,10 @@ class BenchmarkModelResult(BaseModel):
     item_id: str
     model_key: str
     score: float = Field(ge=0, le=1)
+    learning_effectiveness_score: float | None = Field(default=None, ge=0, le=1)
+    comprehension_score: float | None = Field(default=None, ge=0, le=1)
+    technical_rigor_score: float | None = Field(default=None, ge=0, le=1)
+    publishable: bool = False
     cost_usd: float = Field(ge=0, default=0)
     run_id: str
 

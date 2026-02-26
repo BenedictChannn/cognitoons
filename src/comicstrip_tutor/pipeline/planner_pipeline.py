@@ -6,7 +6,7 @@ from dataclasses import asdict
 
 from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.llm.text_planner import PlanningBundle, build_plan
-from comicstrip_tutor.pipeline.critique_pipeline import run_and_save_critique
+from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.io_utils import write_json
@@ -50,8 +50,10 @@ def run_planning_pipeline(
             "pedagogy_instruction": compiled_style.pedagogy_instruction,
         },
     )
-    write_json(paths.root / "storyboard.json", bundle.storyboard.model_dump())
-    critique_report = run_and_save_critique(
+    critique_max_iterations = run_config.critique_max_iterations
+    if critique_max_iterations is None:
+        critique_max_iterations = 4 if run_config.mode == "publish" else 2
+    rewritten_storyboard, critique_report, rewrite_count = run_critique_with_rewrites(
         run_id=run_config.run_id,
         stage="post_planning",
         critique_mode=run_config.critique_mode,
@@ -59,14 +61,19 @@ def run_planning_pipeline(
         expected_key_points=bundle.learning_plan.objectives,
         misconceptions=bundle.learning_plan.misconceptions,
         audience_level=run_config.audience_level,
-        output_path=paths.critiques_dir / "post_planning.json",
+        output_dir=paths.critiques_dir,
+        max_iterations=critique_max_iterations,
+        auto_rewrite=run_config.auto_rewrite,
     )
+    bundle.storyboard = rewritten_storyboard
+    write_json(paths.root / "storyboard.json", rewritten_storyboard.model_dump())
     if should_block_render(critique_report):
         raise RuntimeError(
-            "Planning blocked by critique gate: "
-            f"{critique_report.blocking_issue_count} critical issues."
+            "Planning blocked by critique gate after rewrite loop: "
+            f"{critique_report.blocking_issue_count} critical and "
+            f"{critique_report.major_issue_count} major issues."
         )
-    storyboard_hash = sha256_text(bundle.storyboard.model_dump_json())
+    storyboard_hash = sha256_text(rewritten_storyboard.model_dump_json())
     write_json(paths.root / "storyboard_meta.json", {"storyboard_hash": storyboard_hash})
     artifact_store.append_registry(
         {
@@ -74,6 +81,7 @@ def run_planning_pipeline(
             "event": "planning_complete",
             "storyboard_hash": storyboard_hash,
             "critique_score": critique_report.overall_score,
+            "critique_rewrites": rewrite_count,
         }
     )
     return bundle, storyboard_hash

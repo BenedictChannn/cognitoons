@@ -93,6 +93,8 @@ def generate(
     panel_count: int = typer.Option(6, "--panel-count", min=4, max=12),
     mode: str = typer.Option("draft", "--mode"),
     critique_mode: str = typer.Option("warn", "--critique-mode"),
+    critique_max_iterations: int | None = typer.Option(None, "--critique-max-iterations"),
+    auto_rewrite: bool = typer.Option(True, "--auto-rewrite/--no-auto-rewrite"),
     image_text_mode: str = typer.Option("none", "--image-text-mode"),
     template: str = typer.Option("intuition-to-formalism", "--template"),
     theme: str = typer.Option("clean-whiteboard", "--theme"),
@@ -112,6 +114,8 @@ def generate(
         panel_count=panel_count,
         mode=mode,  # type: ignore[arg-type]
         critique_mode=critique_mode,  # type: ignore[arg-type]
+        critique_max_iterations=critique_max_iterations,
+        auto_rewrite=auto_rewrite,
         image_text_mode=image_text_mode,  # type: ignore[arg-type]
         template=template,
         theme=theme,
@@ -153,6 +157,8 @@ def render(
     llm_judge: bool = typer.Option(False, "--llm-judge"),
     critique_mode: str | None = typer.Option(None, "--critique-mode"),
     image_text_mode: str | None = typer.Option(None, "--image-text-mode"),
+    auto_rewrite: bool | None = typer.Option(None, "--auto-rewrite/--no-auto-rewrite"),
+    critique_max_iterations: int | None = typer.Option(None, "--critique-max-iterations"),
     allow_fallback: bool = typer.Option(True, "--allow-fallback/--no-fallback"),
 ) -> None:
     """Render comic strip with selected model."""
@@ -166,6 +172,8 @@ def render(
         critique_mode=critique_mode,  # type: ignore[arg-type]
         image_text_mode=image_text_mode,  # type: ignore[arg-type]
         allow_model_fallback=allow_fallback,
+        auto_rewrite=auto_rewrite,
+        critique_max_iterations=critique_max_iterations,
     )
     console.print(f"[green]Rendered[/green] {run_id} with {model}")
     console.print(f"[green]Estimated cost:[/green] ${manifest.total_estimated_cost_usd:.4f}")
@@ -235,11 +243,19 @@ def benchmark(
     )
     table = Table(title=f"Benchmark {result.benchmark_id}")
     table.add_column("Model")
+    table.add_column("Mean LES")
     table.add_column("Mean Score")
+    table.add_column("Publish Gate Pass")
     table.add_column("Total Cost (USD)")
     for row in result.leaderboard:
+        mean_les = float(row.get("mean_les", row["mean_score"]))
+        publish_gate = float(row.get("publish_gate_pass_rate", 0.0))
         table.add_row(
-            str(row["model_key"]), f"{row['mean_score']:.4f}", f"{row['total_cost_usd']:.4f}"
+            str(row["model_key"]),
+            f"{mean_les:.4f}",
+            f"{row['mean_score']:.4f}",
+            f"{publish_gate:.4f}",
+            f"{row['total_cost_usd']:.4f}",
         )
     console.print(table)
     console.print(

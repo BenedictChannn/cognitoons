@@ -38,5 +38,7 @@ class EvaluationResult(BaseModel):
     comprehension_score: float | None = Field(default=None, ge=0, le=1)
     technical_rigor_score: float | None = Field(default=None, ge=0, le=1)
     learning_effectiveness_score: float | None = Field(default=None, ge=0, le=1)
+    publishable: bool = False
+    publishable_reasons: list[str] = Field(default_factory=list)
     checks: dict[str, bool] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

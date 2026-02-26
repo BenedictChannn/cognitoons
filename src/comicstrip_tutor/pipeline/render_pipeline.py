@@ -13,7 +13,7 @@ from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.evaluation.scorer import score_render_run
 from comicstrip_tutor.image_models.base import ImageModel, PanelImageRequest, PanelImageResult
 from comicstrip_tutor.image_models.registry import create_model
-from comicstrip_tutor.pipeline.critique_pipeline import run_and_save_critique
+from comicstrip_tutor.pipeline.critique_pipeline import run_critique_with_rewrites
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
 from comicstrip_tutor.schemas.runs import (
     CritiqueMode,
@@ -65,6 +65,8 @@ def render_storyboard(
     critique_mode: CritiqueMode | None = None,
     image_text_mode: ImageTextMode | None = None,
     allow_model_fallback: bool = True,
+    auto_rewrite: bool | None = None,
+    critique_max_iterations: int | None = None,
 ) -> RenderRunManifest:
     """Render storyboard with selected image model."""
     store = ArtifactStore(app_config.output_root)
@@ -77,6 +79,14 @@ def render_storyboard(
     panel_cache = JsonCache(app_config.output_root.parent / "panel_cache.json")
     resolved_critique_mode = critique_mode or run_config.critique_mode
     resolved_image_text_mode = image_text_mode or run_config.image_text_mode
+    resolved_auto_rewrite = run_config.auto_rewrite if auto_rewrite is None else auto_rewrite
+    resolved_critique_max_iterations = (
+        run_config.critique_max_iterations
+        if critique_max_iterations is None
+        else critique_max_iterations
+    )
+    if resolved_critique_max_iterations is None:
+        resolved_critique_max_iterations = 4 if mode == "publish" else 2
     resolved_expected_key_points = list(expected_key_points or [])
     resolved_misconceptions = list(misconceptions or [])
 
@@ -92,20 +102,25 @@ def render_storyboard(
                 str(entry) for entry in learning_plan_payload.get("misconceptions", [])
             ]
 
-    critique_report = run_and_save_critique(
+    storyboard, critique_report, rewrite_count = run_critique_with_rewrites(
         run_id=run_id,
-        stage=f"pre_render:{model_key}",
+        stage=f"pre_render_{model_key}",
         critique_mode=resolved_critique_mode,
         storyboard=storyboard,
         expected_key_points=resolved_expected_key_points,
         misconceptions=resolved_misconceptions,
         audience_level=storyboard.audience_level,
-        output_path=paths.critiques_dir / f"pre_render_{model_key}.json",
+        output_dir=paths.critiques_dir,
+        max_iterations=resolved_critique_max_iterations,
+        auto_rewrite=resolved_auto_rewrite,
     )
+    if rewrite_count > 0:
+        write_json(paths.root / "storyboard.json", storyboard.model_dump())
     if should_block_render(critique_report):
         raise RuntimeError(
-            "Render blocked by critique gate: "
-            f"{critique_report.blocking_issue_count} critical issues."
+            "Render blocked by critique gate after rewrite loop: "
+            f"{critique_report.blocking_issue_count} critical and "
+            f"{critique_report.major_issue_count} major issues."
         )
 
     model_image_dir = paths.images_dir / model_key
@@ -115,6 +130,8 @@ def render_storyboard(
     panel_records: list[PanelRenderRecord] = []
     prompts_joined: list[str] = []
     manifest_notes: list[str] = []
+    if rewrite_count > 0:
+        manifest_notes.append(f"Auto rewrite iterations applied before render: {rewrite_count}")
 
     def _generate_panel_image(
         output_path: Path, panel_number: int, prompt: str
@@ -247,6 +264,10 @@ def render_storyboard(
         enable_llm_judge=enable_llm_judge,
         critique_report=critique_report,
     )
+    if mode == "publish" and resolved_critique_mode == "strict" and not evaluation.publishable:
+        raise RuntimeError(
+            "Publish render blocked by LES gates: " + "; ".join(evaluation.publishable_reasons)
+        )
     write_json(paths.evaluations_dir / f"{model_key}.json", evaluation.model_dump())
     store.append_registry(
         {

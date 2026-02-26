@@ -45,6 +45,27 @@ def _learning_effectiveness(
     return round(value, 4)
 
 
+def _publishability(
+    *,
+    checks: dict[str, bool],
+    comprehension_score: float | None,
+    technical_rigor_score: float | None,
+    learning_effectiveness_score: float | None,
+) -> tuple[bool, list[str]]:
+    reasons: list[str] = []
+    required_checks = ("panel_count_valid", "captions_non_empty", "images_exist", "recap_present")
+    for check_name in required_checks:
+        if not checks.get(check_name, False):
+            reasons.append(f"Structural check failed: {check_name}")
+    if learning_effectiveness_score is None or learning_effectiveness_score < 0.80:
+        reasons.append("LES below threshold (0.80).")
+    if comprehension_score is None or comprehension_score < 0.80:
+        reasons.append("Comprehension score below threshold (0.80).")
+    if technical_rigor_score is None or technical_rigor_score < 0.95:
+        reasons.append("Technical rigor score below threshold (0.95).")
+    return (len(reasons) == 0), reasons
+
+
 def score_render_run(
     *,
     run_id: str,
@@ -78,6 +99,12 @@ def score_render_run(
         readability_score=metrics.readability,
         coherence_score=metrics.coherence,
     )
+    publishable, publishable_reasons = _publishability(
+        checks=checks,
+        comprehension_score=comprehension_score,
+        technical_rigor_score=technical_rigor_score,
+        learning_effectiveness_score=learning_effectiveness_score,
+    )
     return EvaluationResult(
         run_id=run_id,
         model_key=model_key,
@@ -85,6 +112,8 @@ def score_render_run(
         comprehension_score=comprehension_score,
         technical_rigor_score=technical_rigor_score,
         learning_effectiveness_score=learning_effectiveness_score,
+        publishable=publishable,
+        publishable_reasons=publishable_reasons,
         checks=checks,
         notes=[
             f"aggregate={metrics.aggregate}",

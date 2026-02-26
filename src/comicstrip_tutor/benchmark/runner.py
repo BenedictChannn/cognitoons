@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import TypeAdapter
 
@@ -27,23 +28,46 @@ from comicstrip_tutor.utils.time_utils import utc_timestamp
 _BENCHMARK_ADAPTER = TypeAdapter(list[BenchmarkItem])
 
 
-def _score_for_run(run_root: Path, model_key: str) -> float:
+class ScoreSignals(TypedDict):
+    score: float
+    learning_effectiveness_score: float | None
+    comprehension_score: float | None
+    technical_rigor_score: float | None
+    publishable: bool
+
+
+def _score_signals_for_run(run_root: Path, model_key: str) -> ScoreSignals:
     eval_path = run_root / "evaluation" / f"{model_key}.json"
     payload = read_json(eval_path)
     les = payload.get("learning_effectiveness_score")
+    comprehension_score = payload.get("comprehension_score")
+    technical_rigor_score = payload.get("technical_rigor_score")
     if les is not None:
-        return float(les)
-    metrics = payload["metrics"]
-    core = [
-        float(metrics["concept_coverage"]),
-        float(metrics["coherence"]),
-        float(metrics["visual_text_alignment"]),
-        float(metrics["readability"]),
-        float(metrics["consistency"]),
-    ]
-    if metrics.get("llm_judge") is not None:
-        core.append(float(metrics["llm_judge"]))
-    return round(sum(core) / len(core), 4)
+        score = float(les)
+    else:
+        metrics = payload["metrics"]
+        core = [
+            float(metrics["concept_coverage"]),
+            float(metrics["coherence"]),
+            float(metrics["visual_text_alignment"]),
+            float(metrics["readability"]),
+            float(metrics["consistency"]),
+        ]
+        if metrics.get("llm_judge") is not None:
+            core.append(float(metrics["llm_judge"]))
+        score = round(sum(core) / len(core), 4)
+    publishable = bool(payload.get("publishable", False))
+    return {
+        "score": float(score),
+        "learning_effectiveness_score": float(les) if les is not None else None,
+        "comprehension_score": (
+            float(comprehension_score) if comprehension_score is not None else None
+        ),
+        "technical_rigor_score": (
+            float(technical_rigor_score) if technical_rigor_score is not None else None
+        ),
+        "publishable": publishable,
+    }
 
 
 def run_benchmark(
@@ -75,6 +99,8 @@ def run_benchmark(
                 audience_level=item.audience_level,
                 panel_count=6 if mode == "draft" else 8,
                 mode=mode,  # type: ignore[arg-type]
+                critique_mode="warn",
+                auto_rewrite=True,
             )
             run_planning_pipeline(run_config=run_config, artifact_store=store)
             manifest = render_storyboard(
@@ -84,15 +110,21 @@ def run_benchmark(
                 dry_run=dry_run,
                 app_config=app_config,
                 expected_key_points=item.expected_key_points,
+                misconceptions=item.common_misconceptions,
                 enable_llm_judge=False,
             )
-            score = _score_for_run(store.open_run(run_id).root, model_key)
+            score_signals = _score_signals_for_run(store.open_run(run_id).root, model_key)
+            score = float(score_signals["score"])
             model_scores.append(score)
             results.append(
                 BenchmarkModelResult(
                     item_id=item.id,
                     model_key=model_key,
                     score=score,
+                    learning_effectiveness_score=score_signals["learning_effectiveness_score"],
+                    comprehension_score=score_signals["comprehension_score"],
+                    technical_rigor_score=score_signals["technical_rigor_score"],
+                    publishable=bool(score_signals["publishable"]),
                     cost_usd=manifest.total_estimated_cost_usd,
                     run_id=run_id,
                 )

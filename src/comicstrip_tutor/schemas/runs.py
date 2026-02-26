@@ -22,6 +22,8 @@ class RunConfig(BaseModel):
     panel_count: int = Field(ge=4, le=12, default=6)
     mode: RunMode = "draft"
     critique_mode: CritiqueMode = "warn"
+    critique_max_iterations: int | None = Field(default=None, ge=0, le=6)
+    auto_rewrite: bool = True
     image_text_mode: ImageTextMode = "none"
     template: str = "intuition-to-formalism"
     theme: str = "clean-whiteboard"

@@ -78,8 +78,13 @@ def run_storyboard_critique(
 
 def should_block_render(critique_report: CritiqueReport) -> bool:
     """Determine if strict mode should block rendering."""
-    return (
-        critique_report.critique_mode == "strict"
-        and critique_report.overall_verdict == "fail"
-        and critique_report.blocking_issue_count > 0
-    )
+    if critique_report.critique_mode != "strict":
+        return False
+    if critique_report.blocking_issue_count > 0:
+        return True
+    return critique_report.major_issue_count > 2
+
+
+def needs_rewrite(critique_report: CritiqueReport) -> bool:
+    """Determine if report requires rewrite cycle."""
+    return critique_report.blocking_issue_count > 0 or critique_report.major_issue_count > 2
