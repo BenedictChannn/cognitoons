@@ -5,7 +5,9 @@ __pycache__/
 .pytest_cache/
 live-outputs/experiment_registry.jsonl
 live-outputs/panel_cache.json
+live-outputs/provider_circuit.json
 runs/exploration_bandit.json
 live-outputs/experiments/benchmark-*-*-*/
 live-outputs/experiments/live-uct-api/images/
+live-outputs/experiments/*/images/
 checkpoints/

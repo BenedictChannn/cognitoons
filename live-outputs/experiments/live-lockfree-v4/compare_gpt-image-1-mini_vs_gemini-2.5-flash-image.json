@@ -1,0 +1,6 @@
+{
+  "run_id": "live-lockfree-v4",
+  "model_a": "gpt-image-1-mini",
+  "model_b": "gemini-2.5-flash-image",
+  "output_path": "/workspace/live-outputs/experiments/live-lockfree-v4/composite/compare_gpt-image-1-mini_vs_gemini-2.5-flash-image.png"
+}

@@ -1,0 +1,29 @@
+{
+  "template": {
+    "template_id": "failure-postmortem",
+    "title": "Failure Postmortem",
+    "description": "Analyze a failure incident to derive the core concept.",
+    "beat_hints": [
+      "incident",
+      "root-cause",
+      "fix",
+      "recap"
+    ],
+    "instruction": "Use incident -> root-cause -> remediation progression with explicit lesson learned."
+  },
+  "theme": {
+    "theme_id": "textbook-modern",
+    "title": "Textbook Modern",
+    "description": "Infographic-like technical clarity with comic narrative.",
+    "visual_style": "modern textbook diagram elements integrated into scenes",
+    "tone": "precise and instructional",
+    "palette": [
+      "offwhite",
+      "navy",
+      "teal"
+    ]
+  },
+  "style_text": "Theme Textbook Modern: modern textbook diagram elements integrated into scenes. Palette: offwhite, navy, teal. Tone: precise and instructional. Audience level: beginner. Template Failure Postmortem: Use incident -> root-cause -> remediation progression with explicit lesson learned. Beats: incident, root-cause, fix, recap.",
+  "visual_instruction": "Theme Textbook Modern: modern textbook diagram elements integrated into scenes. Palette: offwhite, navy, teal.",
+  "pedagogy_instruction": "Template Failure Postmortem: Use incident -> root-cause -> remediation progression with explicit lesson learned. Beats: incident, root-cause, fix, recap."
+}

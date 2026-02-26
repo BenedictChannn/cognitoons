@@ -1,0 +1,53 @@
+{
+  "run_id": "live-lockfree-v4",
+  "model_key": "gpt-image-1-mini",
+  "provider": "openai",
+  "mode": "publish",
+  "storyboard_hash": "78c0a9c982be0057acd82329555566b8d0a1461ab6d96bceb94dd98f2aac7946",
+  "prompt_hash": "d2631d86a26a6fa9954033f751184f718be982b0ffde3b5809fe503d2b5cc33e",
+  "started_at": "2026-02-26T07:32:41.744010+00:00",
+  "panel_records": [
+    {
+      "panel_number": 1,
+      "prompt_path": "/workspace/live-outputs/experiments/live-lockfree-v4/panel_prompts/panel_01.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_01.png",
+      "estimated_cost_usd": 0.0,
+      "provider_usage": {
+        "cache_hit": true,
+        "source_image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_01.png"
+      }
+    },
+    {
+      "panel_number": 2,
+      "prompt_path": "/workspace/live-outputs/experiments/live-lockfree-v4/panel_prompts/panel_02.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_02.png",
+      "estimated_cost_usd": 0.0,
+      "provider_usage": {
+        "cache_hit": true,
+        "source_image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_02.png"
+      }
+    },
+    {
+      "panel_number": 3,
+      "prompt_path": "/workspace/live-outputs/experiments/live-lockfree-v4/panel_prompts/panel_03.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_03.png",
+      "estimated_cost_usd": 0.0,
+      "provider_usage": {
+        "cache_hit": true,
+        "source_image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_03.png"
+      }
+    },
+    {
+      "panel_number": 4,
+      "prompt_path": "/workspace/live-outputs/experiments/live-lockfree-v4/panel_prompts/panel_04.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_04.png",
+      "estimated_cost_usd": 0.0,
+      "provider_usage": {
+        "cache_hit": true,
+        "source_image_path": "/workspace/live-outputs/experiments/live-lockfree-v4/images/gpt-image-1-mini/panel_04.png"
+      }
+    }
+  ],
+  "total_estimated_cost_usd": 0.0,
+  "notes": []
+}

@@ -1,0 +1,27 @@
+{
+  "run_id": "live-lockfree-v4",
+  "model_key": "gemini-2.5-flash-image",
+  "metrics": {
+    "concept_coverage": 0.7747,
+    "coherence": 1.0,
+    "visual_text_alignment": 0.5826,
+    "readability": 1.0,
+    "consistency": 1.0,
+    "llm_judge": null
+  },
+  "comprehension_score": 0.89,
+  "technical_rigor_score": 1.0,
+  "learning_effectiveness_score": 0.9615,
+  "publishable": true,
+  "publishable_reasons": [],
+  "checks": {
+    "panel_count_valid": true,
+    "captions_non_empty": true,
+    "images_exist": true,
+    "recap_present": true
+  },
+  "notes": [
+    "aggregate=0.8715",
+    "les=0.9615"
+  ]
+}

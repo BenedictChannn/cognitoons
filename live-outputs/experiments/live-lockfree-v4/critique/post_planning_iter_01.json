@@ -1,0 +1,67 @@
+{
+  "run_id": "live-lockfree-v4",
+  "stage": "post_planning",
+  "critique_mode": "strict",
+  "overall_verdict": "pass",
+  "overall_score": 0.956,
+  "blocking_issue_count": 0,
+  "major_issue_count": 0,
+  "reviewer_reports": [
+    {
+      "reviewer": "technical",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.78,
+      "summary": "Validated technical key-point coverage and misconception handling.",
+      "issues": []
+    },
+    {
+      "reviewer": "beginner",
+      "verdict": "pass",
+      "score": 0.88,
+      "confidence": 0.74,
+      "summary": "Evaluated readability, jargon burden, and metaphor support.",
+      "issues": [
+        {
+          "reviewer": "beginner",
+          "severity": "minor",
+          "issue_code": "beginner_missing_metaphor",
+          "message": "No metaphor anchors detected for digestibility.",
+          "recommendation": "Add at least one concrete metaphor anchor in confusion/insight panels.",
+          "panel_number": null,
+          "metadata": {
+            "metaphor_panels": 0
+          }
+        }
+      ]
+    },
+    {
+      "reviewer": "first_year",
+      "verdict": "pass",
+      "score": 0.9,
+      "confidence": 0.71,
+      "summary": "Checked intuition-to-formalism bridge quality.",
+      "issues": []
+    },
+    {
+      "reviewer": "pedagogy",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.8,
+      "summary": "Validated narrative progression for teaching effectiveness.",
+      "issues": []
+    },
+    {
+      "reviewer": "visual",
+      "verdict": "pass",
+      "score": 1.0,
+      "confidence": 0.77,
+      "summary": "Checked caption density and readability safety constraints.",
+      "issues": []
+    }
+  ],
+  "recommended_actions": [],
+  "created_at": "2026-02-26T07:29:42.393310+00:00",
+  "iteration": 1,
+  "auto_rewrite_enabled": true
+}

@@ -1,0 +1,12 @@
+Title: Explain lock-free stack with ABA problem: A Visual Walkthrough (failure-postmortem, textbook-modern)
+Topic: Explain lock-free stack with ABA problem
+Audience: beginner
+Recurring characters: Ada, Turing
+Style and consistency guide: Theme Textbook Modern: modern textbook diagram elements integrated into scenes. Palette: offwhite, navy, teal. Tone: precise and instructional. Audience level: beginner. Template Failure Postmortem: Use incident -> root-cause -> remediation progression with explicit lesson learned. Beats: incident, root-cause, fix, recap.
+Scene: Fix scene (Failure Postmortem): Ada and Turing discuss Explain lock-free stack with ABA problem.
+Dialogue text reference: Ada: "I thought Explain lock-free stack with ABA problem was simpler." Turing: "Let’s unpack Explain lock-free stack with ABA problem with a metaphor."
+Teaching intent: Teach: Explain lock-free stack with ABA problem Formal tradeoff terms: policy, value estimate, and exploration bonus. Bridge intuition to formalism: choose action maximizing value estimate plus uncertainty bonus.
+Misconception addressed: Explain lock-free stack with ABA problem has only one correct strategy
+Expected learner takeaway: After this panel, learner understands: Explain lock-free stack with ABA problem.
+Text policy: do NOT render speech bubbles, captions, labels, or any visible text in the image. Leave clean space for post-render typography overlays.
+Instructions: keep characters visually consistent with prior panels.
