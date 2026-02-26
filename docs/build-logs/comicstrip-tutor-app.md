@@ -464,3 +464,32 @@
   - `live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z`
   - `live-outputs/experiments/probe-gemini-3.1-flash-image-preview-20260226t173533z`
   - `live-outputs/experiments/live-nano-pro-v1`
+
+### 2026-02-26 - Integrate both Nano Banana models into default workflow
+
+**Summary**
+- Enabled experimental model access by default so Nano Banana 2 is integrated into standard Comic Tutor workflows out-of-the-box.
+- Added explicit fallback policy for `gemini-3.1-flash-image-preview` to `gemini-2.5-flash-image` in render pipeline policy metadata.
+- Preserved operator control to disable preview models by setting `COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS=false`.
+
+**Details**
+- Updated `AppConfig.from_env` default for `COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS` to true.
+- Updated `.env.example` and README to reflect default-on integration and opt-out path.
+- Verified behavior:
+  - default env (unset flag): Nano Banana 2 renders are accepted in CLI path.
+  - explicit disable flag: deterministic `experimental_model_disabled` classification.
+
+**Files touched**
+- `src/comicstrip_tutor/config.py`
+- `src/comicstrip_tutor/image_models/registry.py`
+- `.env.example`
+- `README.md`
+- `tests/test_config.py`
+- `tests/test_model_registry.py`
+
+**Impact**
+- Both Nano Banana Pro and Nano Banana 2 are now integrated in product UX by default.
+- Preview risk remains transparent and controllable; operators can disable with one env flag.
+
+**Follow-ups**
+- Continue tracking Nano Banana 2 stability with probes before promoting from preview to fully supported tier.

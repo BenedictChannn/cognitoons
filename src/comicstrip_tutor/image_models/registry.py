@@ -54,7 +54,7 @@ MODEL_METADATA: dict[str, ModelMeta] = {
         "provider": "google",
         "tier": "mid",
         "experimental": True,
-        "fallback_model": None,
+        "fallback_model": "gemini-2.5-flash-image",
     },
 }
 

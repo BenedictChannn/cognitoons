@@ -25,6 +25,7 @@ def test_list_model_descriptors_marks_nano_banana_2_experimental() -> None:
     descriptors = {entry.key: entry for entry in list_model_descriptors()}
     assert "gemini-3.1-flash-image-preview" in descriptors
     assert descriptors["gemini-3.1-flash-image-preview"].experimental is True
+    assert descriptors["gemini-3.1-flash-image-preview"].fallback_model == "gemini-2.5-flash-image"
 
 
 def test_create_model_blocks_experimental_when_disabled() -> None:

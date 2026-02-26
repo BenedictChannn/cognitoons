@@ -47,6 +47,6 @@ class AppConfig:
             provider_backoff_s=float(os.getenv("COMIC_TUTOR_PROVIDER_BACKOFF_S", "1.5")),
             circuit_fail_threshold=int(os.getenv("COMIC_TUTOR_CIRCUIT_FAIL_THRESHOLD", "3")),
             circuit_cooldown_s=float(os.getenv("COMIC_TUTOR_CIRCUIT_COOLDOWN_S", "300")),
-            enable_experimental_models=_env_bool("COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS", False),
+            enable_experimental_models=_env_bool("COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS", True),
             gemini_text_image_fallback=_env_bool("COMIC_TUTOR_GEMINI_TEXT_IMAGE_FALLBACK", False),
         )
