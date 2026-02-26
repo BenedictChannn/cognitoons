@@ -167,3 +167,39 @@
 **References**
 - run live-uct-api
 - benchmark-20260225T120525Z
+
+### 2026-02-26 - Ship critique gating, text policy controls, and provider guardrails
+
+**Summary**
+- Added multi-reviewer critique engine with blocking strict mode and persisted critique reports.
+- Introduced image_text_mode controls (default none) to reduce in-image text clutter and improve composition readability.
+- Added provider reliability policy: timeout, retry, and circuit breaker with persistence.
+- Added gemini-3-pro-image-preview fallback to gemini-2.5-flash-image with manifest annotations.
+- Integrated Learning Effectiveness Score (LES) into evaluation and benchmark scoring.
+
+**Details**
+- Critique reviewers now include technical, beginner, first-year, pedagogy, and visual perspectives with severity-ranked issues and recommendations.
+- Render and planning pipelines now run critique, save critique JSON artifacts, and optionally block in strict mode on critical issues.
+- Minimal live checkpoint executed on two topics with cheap-tier models and strict critique mode; benchmark checkpoint run on 2 prompts x 2 models.
+
+**Files touched**
+- `src/comicstrip_tutor/critique/reviewers.py`
+- `src/comicstrip_tutor/critique/orchestrator.py`
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+- `src/comicstrip_tutor/image_models/reliability.py`
+- `src/comicstrip_tutor/evaluation/scorer.py`
+- `tests/test_critique_engine.py`
+- `tests/test_reliability.py`
+
+**Impact**
+- Raises quality floor for pedagogical rigor and digestibility before publication.
+- Prevents indefinite provider hangs and improves recoverability for premium Gemini instability.
+- Shifts benchmark ranking signal toward LES rather than purely structural heuristics.
+
+**Follow-ups**
+- Implement explicit template/theme registry artifacts and style-guide compiler next.
+- Add automatic panel/storyboard rewrite loop that consumes critique recommendations.
+
+**References**
+- commits 40efa55, 9fdd32e, 0adcf34, 52364e9
+- checkpoint runs: checkpoint-uct-v2, checkpoint-consistency-v2, benchmark-20260226T061922Z
