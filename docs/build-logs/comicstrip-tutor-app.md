@@ -388,3 +388,30 @@
 
 **References**
 - commits 94d0440, 553600d, 651bd1b, 4d22e52
+
+### 2026-02-26 - Add trend dashboard and raise publish-gate alignment
+
+**Summary**
+- Added trend-report CLI command to generate registry-backed markdown dashboard (performance, failures, feedback).
+- Calibrated quality rewrite trigger and technical rigor scoring to better align publish-gate outcomes with actionable issues.
+- Validated benchmark --live flag and produced fresh live benchmark diagnostics artifact.
+
+**Details**
+- Trend dashboard reads experiment_registry.jsonl and reports model score/cost trend, failure taxonomy counts, and feedback average.
+- Dry benchmark 5-item subset gate pass improved to 0.60 after rigor calibration (from previous 0.20).
+
+**Files touched**
+- `src/comicstrip_tutor/reporting/trend_report.py`
+- `src/comicstrip_tutor/evaluation/scorer.py`
+- `src/comicstrip_tutor/critique/orchestrator.py`
+- `src/comicstrip_tutor/cli.py`
+- `live-outputs/experiments/benchmark-20260226T092918Z/`
+
+**Impact**
+- Improves operator visibility into quality/reliability trends and closes remaining report transparency gap.
+
+**Follow-ups**
+- Expose trend report in HTML format and include LES quartile movement over time.
+
+**References**
+- commits 651bd1b, 4d22e52, 2c6bada
