@@ -267,3 +267,38 @@
 **References**
 - commits d3d5a74, 0ab9172
 - checkpoint runs: checkpoint-rewrite-v3, benchmark-20260226T071211Z, benchmark-20260226T071507Z
+
+### 2026-02-26 - Harden critique semantics + add feedback reward loop + publish live strict showcase
+
+**Summary**
+- Replaced brittle rewrite string matching with structured critique issue codes and metadata payloads.
+- Added user feedback loop via rate-run command; ratings now update exploration bandit rewards with LES blending.
+- Extended benchmark diagnostics with top publish-gate failure reasons in CLI, markdown, and HTML reports.
+- Published new live strict-critique showcase run (lock-free stack/ABA) with two real models and comparison.
+
+**Details**
+- Critique issue taxonomy now drives rewrite logic deterministically and is resilient to message wording changes.
+- Added canonical arm-id helper and integrated it across benchmark arm recording, suggestion, and user rating updates.
+- Live run live-lockfree-v4 passed strict critique and publishability gates with LES 0.9615 on both cheap-tier models.
+
+**Files touched**
+- `src/comicstrip_tutor/schemas/critique.py`
+- `src/comicstrip_tutor/critique/reviewers.py`
+- `src/comicstrip_tutor/critique/rewrite.py`
+- `src/comicstrip_tutor/cli.py`
+- `src/comicstrip_tutor/benchmark/leaderboard.py`
+- `src/comicstrip_tutor/exploration/arms.py`
+- `live-outputs/experiments/live-lockfree-v4/`
+
+**Impact**
+- Removes brittle text-coupling in core quality rewrite loop and improves long-term maintainability.
+- Introduces preference-aware reward shaping foundation for exploration policy decisions.
+- Improves reviewer transparency by surfacing publish-gate failure diagnostics in benchmark outputs.
+
+**Follow-ups**
+- Expand issue-code taxonomy for future LLM-based reviewers and enforce code coverage in tests.
+- Start weighting bandit reward with explicit user cohort preferences once data volume grows.
+
+**References**
+- commits 84168d9, 4208d52, d2beb11
+- live run: live-lockfree-v4
