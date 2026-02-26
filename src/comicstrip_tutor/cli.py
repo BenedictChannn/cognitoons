@@ -26,6 +26,7 @@ from comicstrip_tutor.pipeline.storyboard_editor import (
     save_storyboard,
     validate_storyboard_file,
 )
+from comicstrip_tutor.presets import get_preset, list_presets
 from comicstrip_tutor.reporting.quality_report import generate_quality_report_from_run
 from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
@@ -88,6 +89,24 @@ def list_themes_command() -> None:
     table.add_column("Description")
     for theme in list_themes():
         table.add_row(theme.theme_id, theme.title, theme.description)
+    console.print(table)
+
+
+@app.command("list-presets")
+def list_presets_command() -> None:
+    """List onboarding workflow presets."""
+    table = Table(title="Run Presets")
+    table.add_column("Preset ID")
+    table.add_column("Description")
+    table.add_column("Mode")
+    table.add_column("Panels")
+    for preset in list_presets():
+        table.add_row(
+            preset.preset_id,
+            preset.description,
+            preset.mode,
+            str(preset.panel_count),
+        )
     console.print(table)
 
 
@@ -241,6 +260,45 @@ def generate(
     store = ArtifactStore(_app_config().output_root)
     bundle, storyboard_hash = run_planning_pipeline(run_config=config, artifact_store=store)
     console.print(f"[green]Created run:[/green] {rid}")
+    console.print(f"[green]Storyboard hash:[/green] {storyboard_hash[:12]}...")
+    console.print(f"[green]Panels:[/green] {len(bundle.storyboard.panels)}")
+
+
+@app.command("generate-preset")
+def generate_preset(
+    preset: str = typer.Option(..., "--preset"),
+    topic: str | None = typer.Option(None, "--topic"),
+    source_text: str | None = typer.Option(None, "--source-text"),
+    source_file: Path | None = typer.Option(None, "--source-file"),
+    audience_level: str = typer.Option("beginner", "--audience-level"),
+    panel_count_override: int | None = typer.Option(None, "--panel-count"),
+    run_id: str | None = typer.Option(None, "--run-id"),
+) -> None:
+    """Generate storyboard using a predefined product preset."""
+    if source_file:
+        source_text = source_file.read_text(encoding="utf-8")
+    if not topic and not source_text:
+        raise typer.BadParameter("Provide --topic or --source-text/--source-file")
+    preset_config = get_preset(preset)
+    rid = run_id or _new_run_id()
+    config = RunConfig(
+        run_id=rid,
+        topic=topic,
+        source_text=source_text,
+        audience_level=audience_level,
+        panel_count=panel_count_override or preset_config.panel_count,
+        mode=preset_config.mode,
+        critique_mode=preset_config.critique_mode,
+        critique_max_iterations=preset_config.critique_max_iterations,
+        auto_rewrite=preset_config.auto_rewrite,
+        image_text_mode=preset_config.image_text_mode,
+        template=preset_config.template,
+        theme=preset_config.theme,
+    )
+    store = ArtifactStore(_app_config().output_root)
+    bundle, storyboard_hash = run_planning_pipeline(run_config=config, artifact_store=store)
+    console.print(f"[green]Created run from preset:[/green] {rid}")
+    console.print(f"[green]Preset:[/green] {preset_config.preset_id}")
     console.print(f"[green]Storyboard hash:[/green] {storyboard_hash[:12]}...")
     console.print(f"[green]Panels:[/green] {len(bundle.storyboard.panels)}")
 
