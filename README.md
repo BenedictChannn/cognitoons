@@ -20,7 +20,10 @@ It is intentionally not a one-shot image generator. It uses explicit intermediat
 - Single-panel reroll (`reroll-panel`) without rerendering everything
 - Model comparison on same storyboard (`compare`)
 - Benchmark harness with cheap→expensive model ordering + early-stop
+- Multi-reviewer critique gate (technical + beginner + first-year + pedagogy + visual)
+- `image_text_mode` controls (`none|minimal|full`) with production default `none`
 - Cost estimate + usage metadata capture
+- Reliability guardrails (timeout, retry, circuit breaker) + Gemini 3 fallback
 - Prompt/image cache reuse for reproducible model comparisons
 - Build logs under `docs/build-logs/`
 - Experiment artifacts under `runs/experiments/`
@@ -73,9 +76,11 @@ Run CLI:
 
 ```bash
 comic-tutor list-models
-comic-tutor generate --topic "..." [--panel-count 6] [--mode draft|publish]
+comic-tutor list-templates
+comic-tutor list-themes
+comic-tutor generate --topic "..." [--panel-count 6] [--mode draft|publish] [--template ...] [--theme ...]
 comic-tutor edit-storyboard <run_id> [--open-editor]
-comic-tutor render <run_id> --model <model_key> [--dry-run]
+comic-tutor render <run_id> --model <model_key> [--dry-run] [--critique-mode off|warn|strict] [--image-text-mode none|minimal|full]
 comic-tutor reroll-panel <run_id> --model <model_key> --panel 3 --metaphor "..."
 comic-tutor compare <run_id> --model-a <A> --model-b <B> [--dry-run]
 comic-tutor benchmark --dataset benchmark/comic_benchmark_v1.json --limit 10 [--dry-run]
@@ -96,8 +101,12 @@ comic-tutor generate \
   --run-id demo-uct \
   --topic "Explain UCT in MCTS to a beginner" \
   --panel-count 6 \
-  --mode draft
-comic-tutor render demo-uct --model gpt-image-1-mini --mode draft --dry-run
+  --mode draft \
+  --critique-mode strict \
+  --image-text-mode none \
+  --template intuition-to-formalism \
+  --theme clean-whiteboard
+comic-tutor render demo-uct --model gpt-image-1-mini --mode draft --dry-run --critique-mode strict --image-text-mode none
 ```
 
 ### 2) Regenerate only panel #3 with new metaphor
@@ -161,8 +170,11 @@ Per run (`runs/experiments/<run_id>/`):
 - `planning/learning_plan.json`
 - `planning/story_arc.json`
 - `planning/characters.json`
+- `planning/style_guide.json`
 - `storyboard.json`
 - `storyboard_meta.json`
+- `critique/post_planning.json`
+- `critique/pre_render_<model>.json`
 - `panel_prompts/panel_XX.txt`
 - `images/<model>/panel_XX.png`
 - `composite/<model>/strip.png` and `.pdf`
@@ -172,6 +184,7 @@ Per run (`runs/experiments/<run_id>/`):
 Global:
 - `<output_root_parent>/experiment_registry.jsonl` (default: `runs/experiment_registry.jsonl`)
 - `<output_root_parent>/panel_cache.json` (prompt+model cache for panel reuse)
+- `<output_root_parent>/provider_circuit.json` (provider/model circuit-breaker state)
 - benchmark reports under `runs/experiments/<benchmark_id>/leaderboard.{md,html}`
 
 Live showcase artifacts (real API runs) can be kept in a separate output root,
