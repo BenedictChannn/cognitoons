@@ -22,3 +22,25 @@ def test_prompt_includes_style_guide_and_characters() -> None:
     prompt = build_panel_prompt(storyboard, storyboard.panels[0])
     assert "Consistent style guide" in prompt
     assert "Ada, Turing" in prompt
+    assert "do NOT render speech bubbles" in prompt
+
+
+def test_prompt_full_text_mode_includes_dialogue_instruction() -> None:
+    storyboard = Storyboard(
+        topic="UCT",
+        story_title="UCT comic",
+        character_style_guide="Consistent style guide",
+        recurring_characters=["Ada", "Turing"],
+        panels=[
+            PanelScript(
+                panel_number=1,
+                scene_description="Ada at whiteboard describing trees and choices",
+                dialogue_or_caption="Exploration versus exploitation matters.",
+                teaching_intent="Introduce core tradeoff",
+            )
+        ]
+        * 4,
+        recap_panel=4,
+    )
+    prompt = build_panel_prompt(storyboard, storyboard.panels[0], image_text_mode="full")
+    assert "Text policy: include concise in-panel text" in prompt

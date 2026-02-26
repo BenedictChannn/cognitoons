@@ -12,6 +12,8 @@ class PanelScript(BaseModel):
     scene_description: str = Field(min_length=10)
     dialogue_or_caption: str = Field(min_length=5)
     teaching_intent: str = Field(min_length=5)
+    misconception_addressed: str | None = None
+    expected_takeaway: str | None = None
     metaphor_anchor: str | None = None
 
 

@@ -66,6 +66,10 @@ def generate(
     audience_level: str = typer.Option("beginner", "--audience-level"),
     panel_count: int = typer.Option(6, "--panel-count", min=4, max=12),
     mode: str = typer.Option("draft", "--mode"),
+    critique_mode: str = typer.Option("warn", "--critique-mode"),
+    image_text_mode: str = typer.Option("none", "--image-text-mode"),
+    template: str = typer.Option("intuition-to-formalism", "--template"),
+    theme: str = typer.Option("clean-whiteboard", "--theme"),
     run_id: str | None = typer.Option(None, "--run-id"),
 ) -> None:
     """Generate planning artifacts + storyboard."""
@@ -81,6 +85,10 @@ def generate(
         audience_level=audience_level,
         panel_count=panel_count,
         mode=mode,  # type: ignore[arg-type]
+        critique_mode=critique_mode,  # type: ignore[arg-type]
+        image_text_mode=image_text_mode,  # type: ignore[arg-type]
+        template=template,
+        theme=theme,
     )
     store = ArtifactStore(_app_config().output_root)
     bundle, storyboard_hash = run_planning_pipeline(run_config=config, artifact_store=store)
@@ -117,6 +125,8 @@ def render(
     mode: str = typer.Option("draft", "--mode"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     llm_judge: bool = typer.Option(False, "--llm-judge"),
+    critique_mode: str | None = typer.Option(None, "--critique-mode"),
+    image_text_mode: str | None = typer.Option(None, "--image-text-mode"),
 ) -> None:
     """Render comic strip with selected model."""
     manifest = render_storyboard(
@@ -126,6 +136,8 @@ def render(
         dry_run=dry_run,
         app_config=_app_config(),
         enable_llm_judge=llm_judge,
+        critique_mode=critique_mode,  # type: ignore[arg-type]
+        image_text_mode=image_text_mode,  # type: ignore[arg-type]
     )
     console.print(f"[green]Rendered[/green] {run_id} with {model}")
     console.print(f"[green]Estimated cost:[/green] ${manifest.total_estimated_cost_usd:.4f}")

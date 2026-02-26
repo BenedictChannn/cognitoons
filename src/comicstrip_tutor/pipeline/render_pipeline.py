@@ -9,11 +9,19 @@ from pydantic import TypeAdapter
 
 from comicstrip_tutor.composition.strip_composer import compose_strip
 from comicstrip_tutor.config import AppConfig
+from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.evaluation.scorer import score_render_run
 from comicstrip_tutor.image_models.base import PanelImageRequest, PanelImageResult
 from comicstrip_tutor.image_models.registry import create_model
+from comicstrip_tutor.pipeline.critique_pipeline import run_and_save_critique
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
-from comicstrip_tutor.schemas.runs import PanelRenderRecord, RenderRunManifest
+from comicstrip_tutor.schemas.runs import (
+    CritiqueMode,
+    ImageTextMode,
+    PanelRenderRecord,
+    RenderRunManifest,
+    RunConfig,
+)
 from comicstrip_tutor.schemas.storyboard import Storyboard
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.cache import JsonCache
@@ -21,6 +29,7 @@ from comicstrip_tutor.storage.io_utils import read_json, write_json, write_text
 from comicstrip_tutor.utils.hashing import sha256_text
 
 _STORYBOARD_ADAPTER = TypeAdapter(Storyboard)
+_RUN_CONFIG_ADAPTER = TypeAdapter(RunConfig)
 
 
 def _size_for_mode(mode: str) -> tuple[int, int]:
@@ -51,15 +60,51 @@ def render_storyboard(
     dry_run: bool,
     app_config: AppConfig,
     expected_key_points: list[str] | None = None,
+    misconceptions: list[str] | None = None,
     enable_llm_judge: bool = False,
+    critique_mode: CritiqueMode | None = None,
+    image_text_mode: ImageTextMode | None = None,
 ) -> RenderRunManifest:
     """Render storyboard with selected image model."""
     store = ArtifactStore(app_config.output_root)
     paths = store.open_run(run_id)
     storyboard = _STORYBOARD_ADAPTER.validate_python(read_json(paths.root / "storyboard.json"))
+    run_config = _RUN_CONFIG_ADAPTER.validate_python(read_json(paths.root / "run_config.json"))
     model = create_model(model_key, app_config)
     width, height = _size_for_mode(mode)
     panel_cache = JsonCache(app_config.output_root.parent / "panel_cache.json")
+    resolved_critique_mode = critique_mode or run_config.critique_mode
+    resolved_image_text_mode = image_text_mode or run_config.image_text_mode
+    resolved_expected_key_points = list(expected_key_points or [])
+    resolved_misconceptions = list(misconceptions or [])
+
+    learning_plan_path = paths.planning_dir / "learning_plan.json"
+    if learning_plan_path.exists():
+        learning_plan_payload = read_json(learning_plan_path)
+        if not resolved_expected_key_points:
+            resolved_expected_key_points = [
+                str(entry) for entry in learning_plan_payload.get("objectives", [])
+            ]
+        if not resolved_misconceptions:
+            resolved_misconceptions = [
+                str(entry) for entry in learning_plan_payload.get("misconceptions", [])
+            ]
+
+    critique_report = run_and_save_critique(
+        run_id=run_id,
+        stage=f"pre_render:{model_key}",
+        critique_mode=resolved_critique_mode,
+        storyboard=storyboard,
+        expected_key_points=resolved_expected_key_points,
+        misconceptions=resolved_misconceptions,
+        audience_level=storyboard.audience_level,
+        output_path=paths.critiques_dir / f"pre_render_{model_key}.json",
+    )
+    if should_block_render(critique_report):
+        raise RuntimeError(
+            "Render blocked by critique gate: "
+            f"{critique_report.blocking_issue_count} critical issues."
+        )
 
     model_image_dir = paths.images_dir / model_key
     model_image_dir.mkdir(parents=True, exist_ok=True)
@@ -69,7 +114,11 @@ def render_storyboard(
     prompts_joined: list[str] = []
 
     for panel in storyboard.panels:
-        prompt = build_panel_prompt(storyboard, panel)
+        prompt = build_panel_prompt(
+            storyboard,
+            panel,
+            image_text_mode=resolved_image_text_mode,
+        )
         prompt_file = paths.prompts_dir / f"panel_{panel.panel_number:02d}.txt"
         write_text(prompt_file, prompt + "\n")
         prompt_files.append(prompt_file)
@@ -172,7 +221,7 @@ def render_storyboard(
         run_id=run_id,
         model_key=model_key,
         storyboard=storyboard,
-        expected_key_points=expected_key_points or [],
+        expected_key_points=resolved_expected_key_points,
         prompt_paths=prompt_files,
         image_paths=image_files,
         enable_llm_judge=enable_llm_judge,
@@ -185,6 +234,8 @@ def render_storyboard(
             "model": model_key,
             "aggregate_score": evaluation.metrics.aggregate,
             "estimated_cost_usd": manifest.total_estimated_cost_usd,
+            "critique_score": critique_report.overall_score,
+            "critique_mode": resolved_critique_mode,
         }
     )
     return manifest

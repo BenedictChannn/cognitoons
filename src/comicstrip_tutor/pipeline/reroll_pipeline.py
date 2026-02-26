@@ -9,11 +9,13 @@ from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.image_models.base import PanelImageRequest
 from comicstrip_tutor.image_models.registry import create_model
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
+from comicstrip_tutor.schemas.runs import RunConfig
 from comicstrip_tutor.schemas.storyboard import Storyboard
 from comicstrip_tutor.storage.artifact_store import ArtifactStore
 from comicstrip_tutor.storage.io_utils import read_json, write_json, write_text
 
 _STORYBOARD_ADAPTER = TypeAdapter(Storyboard)
+_RUN_CONFIG_ADAPTER = TypeAdapter(RunConfig)
 
 
 def reroll_single_panel(
@@ -30,11 +32,16 @@ def reroll_single_panel(
     store = ArtifactStore(app_config.output_root)
     paths = store.open_run(run_id)
     storyboard = _STORYBOARD_ADAPTER.validate_python(read_json(paths.root / "storyboard.json"))
+    run_config = _RUN_CONFIG_ADAPTER.validate_python(read_json(paths.root / "run_config.json"))
     target_panel = next(panel for panel in storyboard.panels if panel.panel_number == panel_number)
     if metaphor:
         target_panel.metaphor_anchor = metaphor
         write_json(paths.root / "storyboard.json", storyboard.model_dump())
-    prompt = build_panel_prompt(storyboard, target_panel)
+    prompt = build_panel_prompt(
+        storyboard,
+        target_panel,
+        image_text_mode=run_config.image_text_mode,
+    )
     prompt_path = paths.prompts_dir / f"panel_{panel_number:02d}.txt"
     write_text(prompt_path, prompt + "\n")
 

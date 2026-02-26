@@ -23,6 +23,7 @@ class RunPaths:
     images_dir: Path
     composite_dir: Path
     evaluations_dir: Path
+    critiques_dir: Path
     reports_dir: Path
 
 
@@ -42,8 +43,9 @@ class ArtifactStore:
         images = root / "images"
         composite = root / "composite"
         evaluations = root / "evaluation"
+        critiques = root / "critique"
         reports = root / "reports"
-        for path in [root, planning, prompts, images, composite, evaluations, reports]:
+        for path in [root, planning, prompts, images, composite, evaluations, critiques, reports]:
             path.mkdir(parents=True, exist_ok=True)
         write_json(root / "run_config.json", config.model_dump())
         return RunPaths(
@@ -54,6 +56,7 @@ class ArtifactStore:
             images_dir=images,
             composite_dir=composite,
             evaluations_dir=evaluations,
+            critiques_dir=critiques,
             reports_dir=reports,
         )
 
@@ -69,6 +72,7 @@ class ArtifactStore:
             images_dir=root / "images",
             composite_dir=root / "composite",
             evaluations_dir=root / "evaluation",
+            critiques_dir=root / "critique",
             reports_dir=root / "reports",
         )
 

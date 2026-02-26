@@ -8,6 +8,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 RunMode = Literal["draft", "publish"]
+CritiqueMode = Literal["off", "warn", "strict"]
+ImageTextMode = Literal["none", "minimal", "full"]
 
 
 class RunConfig(BaseModel):
@@ -19,6 +21,10 @@ class RunConfig(BaseModel):
     audience_level: str = "beginner"
     panel_count: int = Field(ge=4, le=12, default=6)
     mode: RunMode = "draft"
+    critique_mode: CritiqueMode = "warn"
+    image_text_mode: ImageTextMode = "none"
+    template: str = "intuition-to-formalism"
+    theme: str = "clean-whiteboard"
     created_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
