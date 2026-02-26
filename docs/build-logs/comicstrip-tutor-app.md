@@ -415,3 +415,52 @@
 
 **References**
 - commits 651bd1b, 4d22e52, 2c6bada
+
+### 2026-02-26 - Nano Banana Pro hardening + Nano Banana 2 probe integration
+
+**Summary**
+- Hardened Gemini adapter to use typed `GenerateContentConfig` + `Modality` image-only strategy mapping.
+- Added richer Gemini response diagnostics (candidate/part composition, finish reason, block signal) into provider usage metadata.
+- Added explicit experimental model gating and integrated `gemini-3.1-flash-image-preview` in model registry/pricing/CLI.
+- Added `probe-model` command with persisted per-attempt diagnostics for stability scoring.
+- Fixed reliability timeout implementation to avoid hanging executor shutdown behavior.
+
+**Details**
+- Added model-specific Gemini generation strategies:
+  - `gemini-2.5-flash-image`: IMAGE-only
+  - `gemini-3-pro-image-preview`: IMAGE-only with optional controlled TEXT+IMAGE fallback when enabled
+  - `gemini-3.1-flash-image-preview`: IMAGE-only experimental path
+- Added environment toggles:
+  - `COMIC_TUTOR_ENABLE_EXPERIMENTAL_MODELS`
+  - `COMIC_TUTOR_GEMINI_TEXT_IMAGE_FALLBACK`
+- Updated render fallback handling to use explicit registry policy rather than hardcoded model checks.
+- Added live probe artifacts and production proof run:
+  - Pro probe: `probe-gemini-3-pro-image-preview-20260226t171944z` (5/5 success)
+  - Nano Banana 2 probe: `probe-gemini-3.1-flash-image-preview-20260226t173533z` (0/5 success; timeout + circuit-open)
+  - Live compare run: `live-nano-pro-v1` (`gemini-3-pro-image-preview` vs `gemini-2.5-flash-image`) success.
+
+**Files touched**
+- `src/comicstrip_tutor/image_models/gemini_image.py`
+- `src/comicstrip_tutor/image_models/registry.py`
+- `src/comicstrip_tutor/image_models/reliability.py`
+- `src/comicstrip_tutor/pipeline/render_pipeline.py`
+- `src/comicstrip_tutor/cli.py`
+- `src/comicstrip_tutor/probes/model_probe.py`
+- `src/comicstrip_tutor/schemas/probe.py`
+- `README.md`
+- `live-outputs/README.md`
+
+**Impact**
+- Nano Banana Pro path is now demonstrably stable in IMAGE-only live probes and live compare workflow.
+- Nano Banana 2 path is integrated but clearly marked experimental with guardrailed failure behavior and explicit diagnostics.
+- Timeout handling is now bounded and no longer causes lingering hangs in probe/render workflows.
+
+**Follow-ups**
+- Keep `gemini-3.1-flash-image-preview` in experimental state until probe success rate reaches >= 80%.
+- Re-run probe matrix after upstream provider stability updates.
+
+**References**
+- live artifacts:
+  - `live-outputs/experiments/probe-gemini-3-pro-image-preview-20260226t171944z`
+  - `live-outputs/experiments/probe-gemini-3.1-flash-image-preview-20260226t173533z`
+  - `live-outputs/experiments/live-nano-pro-v1`

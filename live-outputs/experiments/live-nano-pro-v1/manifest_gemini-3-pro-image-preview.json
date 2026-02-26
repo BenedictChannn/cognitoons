@@ -1,0 +1,208 @@
+{
+  "run_id": "live-nano-pro-v1",
+  "model_key": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "mode": "draft",
+  "storyboard_hash": "3923d3a9033ba4d521df7002c8a0cb70b1d10a50cb4cbebc6dc65415e3b29b04",
+  "prompt_hash": "99d897ede06a75b5a5c9b497b0ff648bccabaa130c1615b94c4883841784c35e",
+  "started_at": "2026-02-26T17:39:40.708333+00:00",
+  "panel_records": [
+    {
+      "panel_number": 1,
+      "prompt_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/panel_prompts/panel_01.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/images/gemini-3-pro-image-preview/panel_01.png",
+      "estimated_cost_usd": 0.07,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 2170,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 396,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 396
+          }
+        ],
+        "thoughts_token_count": 502,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 3068,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "panel_number": 2,
+      "prompt_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/panel_prompts/panel_02.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/images/gemini-3-pro-image-preview/panel_02.png",
+      "estimated_cost_usd": 0.07,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1724,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 408,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 408
+          }
+        ],
+        "thoughts_token_count": 564,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2696,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "panel_number": 3,
+      "prompt_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/panel_prompts/panel_03.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/images/gemini-3-pro-image-preview/panel_03.png",
+      "estimated_cost_usd": 0.07,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1512,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 424,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 424
+          }
+        ],
+        "thoughts_token_count": 510,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2446,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "panel_number": 4,
+      "prompt_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/panel_prompts/panel_04.txt",
+      "image_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/images/gemini-3-pro-image-preview/panel_04.png",
+      "estimated_cost_usd": 0.07,
+      "provider_usage": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1437,
+        "candidates_tokens_details": [
+          {
+            "modality": "IMAGE",
+            "token_count": 1120
+          }
+        ],
+        "prompt_token_count": 411,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 411
+          }
+        ],
+        "thoughts_token_count": 359,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2207,
+        "traffic_type": null,
+        "generation_method": "generate_content",
+        "response_modalities": [
+          "IMAGE"
+        ],
+        "response_diagnostics": {
+          "candidate_count": 1,
+          "inline_data_part_count": 1,
+          "text_part_count": 0,
+          "prompt_block_reason": null,
+          "candidate_summaries": [
+            {
+              "index": 0,
+              "part_types": [
+                "inline_data"
+              ],
+              "finish_reason": "STOP"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "total_estimated_cost_usd": 0.28,
+  "completion_status": "success",
+  "error_type": null,
+  "error_message": null,
+  "notes": []
+}

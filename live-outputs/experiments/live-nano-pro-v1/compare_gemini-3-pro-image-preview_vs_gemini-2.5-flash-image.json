@@ -1,0 +1,6 @@
+{
+  "run_id": "live-nano-pro-v1",
+  "model_a": "gemini-3-pro-image-preview",
+  "model_b": "gemini-2.5-flash-image",
+  "output_path": "/workspace/live-outputs/experiments/live-nano-pro-v1/composite/compare_gemini-3-pro-image-preview_vs_gemini-2.5-flash-image.png"
+}

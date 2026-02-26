@@ -1,0 +1,13 @@
+Title: Explain lock-free stack ABA problem to first-year CS student: A Visual Walkthrough (intuition-to-formalism, clean-whiteboard)
+Topic: Explain lock-free stack ABA problem to first-year CS student
+Audience: beginner
+Recurring characters: Ada, Turing
+Style and consistency guide: Theme Clean Whiteboard: clean white background, crisp lines, clear spacing. Palette: white, charcoal, blue. Tone: calm and explanatory. Audience level: beginner. Template Intuition to Formalism: Translate intuitive framing into technical terms by panel 3, and recap the mapping. Beats: intuition, confusion, formal-rule, recap.
+Scene: Confusion scene (Intuition to Formalism): Ada and Turing discuss Explain lock-free stack ABA problem to first-year CS student.
+Dialogue text reference: Ada: "I thought Explain lock-free stack ABA problem to first-year CS student was simpler." Turing: "Let’s unpack Explain lock-free stack ABA problem…
+Teaching intent: Teach: Explain lock-free stack ABA problem to first-year CS student
+Metaphor anchor: Exploring hallways with a map and scorecard
+Misconception addressed: Explain lock-free stack ABA problem to first-year CS student is purely theoretical and not practical
+Expected learner takeaway: After this panel, learner understands: Explain lock-free stack ABA problem to first-year CS student.
+Text policy: do NOT render speech bubbles, captions, labels, or any visible text in the image. Leave clean space for post-render typography overlays.
+Instructions: keep characters visually consistent with prior panels.
