@@ -11,7 +11,7 @@ from comicstrip_tutor.composition.strip_composer import compose_strip
 from comicstrip_tutor.config import AppConfig
 from comicstrip_tutor.critique.orchestrator import should_block_render
 from comicstrip_tutor.evaluation.scorer import score_render_run
-from comicstrip_tutor.image_models.base import PanelImageRequest, PanelImageResult
+from comicstrip_tutor.image_models.base import ImageModel, PanelImageRequest, PanelImageResult
 from comicstrip_tutor.image_models.registry import create_model
 from comicstrip_tutor.pipeline.critique_pipeline import run_and_save_critique
 from comicstrip_tutor.pipeline.panel_prompt_builder import build_panel_prompt
@@ -64,6 +64,7 @@ def render_storyboard(
     enable_llm_judge: bool = False,
     critique_mode: CritiqueMode | None = None,
     image_text_mode: ImageTextMode | None = None,
+    allow_model_fallback: bool = True,
 ) -> RenderRunManifest:
     """Render storyboard with selected image model."""
     store = ArtifactStore(app_config.output_root)
@@ -71,6 +72,7 @@ def render_storyboard(
     storyboard = _STORYBOARD_ADAPTER.validate_python(read_json(paths.root / "storyboard.json"))
     run_config = _RUN_CONFIG_ADAPTER.validate_python(read_json(paths.root / "run_config.json"))
     model = create_model(model_key, app_config)
+    fallback_model: ImageModel | None = None
     width, height = _size_for_mode(mode)
     panel_cache = JsonCache(app_config.output_root.parent / "panel_cache.json")
     resolved_critique_mode = critique_mode or run_config.critique_mode
@@ -112,6 +114,43 @@ def render_storyboard(
     image_files: list[Path] = []
     panel_records: list[PanelRenderRecord] = []
     prompts_joined: list[str] = []
+    manifest_notes: list[str] = []
+
+    def _generate_panel_image(
+        output_path: Path, panel_number: int, prompt: str
+    ) -> PanelImageResult:
+        nonlocal fallback_model
+        request = PanelImageRequest(
+            panel_number=panel_number,
+            prompt=prompt,
+            width=width,
+            height=height,
+            style_guide=storyboard.character_style_guide,
+            output_path=str(output_path),
+            dry_run=dry_run,
+        )
+        try:
+            return model.generate_panel_image(request)
+        except Exception as exc:  # noqa: BLE001
+            if not (allow_model_fallback and model_key == "gemini-3-pro-image-preview"):
+                raise
+            if fallback_model is None:
+                fallback_model = create_model("gemini-2.5-flash-image", app_config)
+            fallback_result = fallback_model.generate_panel_image(request)
+            fallback_usage = {
+                **fallback_result.provider_usage,
+                "fallback_from_model": model_key,
+                "fallback_to_model": "gemini-2.5-flash-image",
+                "fallback_reason": str(exc),
+            }
+            manifest_notes.append(
+                "Fallback used: gemini-3-pro-image-preview -> gemini-2.5-flash-image"
+            )
+            return PanelImageResult(
+                image_path=fallback_result.image_path,
+                provider_usage=fallback_usage,
+                estimated_cost_usd=fallback_result.estimated_cost_usd,
+            )
 
     for panel in storyboard.panels:
         prompt = build_panel_prompt(
@@ -150,29 +189,9 @@ def render_storyboard(
                     estimated_cost_usd=0.0,
                 )
             else:
-                result = model.generate_panel_image(
-                    PanelImageRequest(
-                        panel_number=panel.panel_number,
-                        prompt=prompt,
-                        width=width,
-                        height=height,
-                        style_guide=storyboard.character_style_guide,
-                        output_path=str(output_path),
-                        dry_run=dry_run,
-                    )
-                )
+                result = _generate_panel_image(output_path, panel.panel_number, prompt)
         else:
-            result = model.generate_panel_image(
-                PanelImageRequest(
-                    panel_number=panel.panel_number,
-                    prompt=prompt,
-                    width=width,
-                    height=height,
-                    style_guide=storyboard.character_style_guide,
-                    output_path=str(output_path),
-                    dry_run=dry_run,
-                )
-            )
+            result = _generate_panel_image(output_path, panel.panel_number, prompt)
         panel_cache.set(
             cache_key,
             {
@@ -214,6 +233,7 @@ def render_storyboard(
         total_estimated_cost_usd=round(
             sum(record.estimated_cost_usd for record in panel_records), 4
         ),
+        notes=list(dict.fromkeys(manifest_notes)),
     )
     write_json(paths.root / f"manifest_{model_key}.json", manifest.model_dump())
 

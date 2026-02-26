@@ -127,6 +127,7 @@ def render(
     llm_judge: bool = typer.Option(False, "--llm-judge"),
     critique_mode: str | None = typer.Option(None, "--critique-mode"),
     image_text_mode: str | None = typer.Option(None, "--image-text-mode"),
+    allow_fallback: bool = typer.Option(True, "--allow-fallback/--no-fallback"),
 ) -> None:
     """Render comic strip with selected model."""
     manifest = render_storyboard(
@@ -138,6 +139,7 @@ def render(
         enable_llm_judge=llm_judge,
         critique_mode=critique_mode,  # type: ignore[arg-type]
         image_text_mode=image_text_mode,  # type: ignore[arg-type]
+        allow_model_fallback=allow_fallback,
     )
     console.print(f"[green]Rendered[/green] {run_id} with {model}")
     console.print(f"[green]Estimated cost:[/green] ${manifest.total_estimated_cost_usd:.4f}")
